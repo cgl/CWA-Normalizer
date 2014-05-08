@@ -465,3 +465,24 @@ def normalize(tweet):
     feat_mat = iter_calc_lev(matrix1,fm_reduced,mapp,not_ovv)
     res,ans,incor, fp, tn = show_results(feat_mat, mapp, not_ovv = not_ovv, max_val=max_val,threshold=threshold)
     return res,ans,incor, fp, tn
+
+
+def calculate_results(res_mat,mapp, max_val = [1., 1., 0.5, 0.0, 1.0, 0.5], threshold = 1.5):
+    results = []
+    for ind in range (0,len(res_mat)):
+        ovv = mapp[ind][0]
+        res_dict = res_mat[ind]
+        res_list = []
+        if res_dict:
+            for res_ind,cand in enumerate(res_dict):
+                score = calculate_score(res_dict[cand],max_val)
+                if score >= threshold:
+                    res_dict[cand].append(round(score,7))
+                    res_line = [cand]
+                    res_line.extend(res_dict[cand])
+                    res_list.append(res_line)
+            res_list.sort(key=lambda x: -float(x[-1]))
+        answer = res_list[0][0] if res_list else ovv
+        print answer
+        results.append(res_list)
+    return results
