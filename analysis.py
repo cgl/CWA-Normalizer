@@ -454,7 +454,7 @@ def normalize(tweet):
     slang_threshold = 1.5
     threshold = 1.5
     max_val = [1., 1., 0.5, 0.0, 1.0, 0.5]
-    oov_fun = lambda x,y,z : tools.spell_check(x)
+    oov_fun = lambda x,y,z : not tools.spell_check(x)
     pos_tagged = CMUTweetTagger.runtagger_parse([tweet,])
     matrix1 = calc_mat(results = pos_tagged, pos_tagged = pos_tagged, oov_fun = oov_fun)
     mapp = construct_mapp(pos_tagged, pos_tagged, oov_fun)
