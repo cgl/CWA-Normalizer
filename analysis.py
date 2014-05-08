@@ -11,9 +11,10 @@ import traceback
 import logging
 import constants
 
-#is_ill = lambda x,y,z : True if x != z else False
-#is_ovv = lambda x,y,z : True if y == 'OOV' else False
-#OOVFUNC = is_ill
+is_ill = lambda x,y,z : True if x != z else False
+is_ovv = lambda x,y,z : True if y == 'OOV' else False
+spell = lambda x,y,z : not tools.spell_check(x)
+OOVFUNC = spell
 SLANG = tools.get_slangs()
 
 # create file handler which logs even debug messages
