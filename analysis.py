@@ -463,8 +463,8 @@ def normalize(tweet):
     fmd = add_from_dict(fms,matrix1,distance,not_ovv)
     fm_reduced = add_nom_verbs(fmd,mapp,slang_threshold=slang_threshold)
     feat_mat = iter_calc_lev(matrix1,fm_reduced,mapp,not_ovv)
-    res,ans,incor, fp, tn = show_results(feat_mat, mapp, not_ovv = not_ovv, max_val=max_val,threshold=threshold)
-    return res,ans,incor, fp, tn
+    res = calculate_results(feat_mat, mapp, max_val=max_val,threshold=threshold)
+    return res
 
 
 def calculate_results(res_mat,mapp, max_val = [1., 1., 0.5, 0.0, 1.0, 0.5], threshold = 1.5):
