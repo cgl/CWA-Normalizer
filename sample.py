@@ -228,7 +228,8 @@ res,ans,incorrects = analysis.show_results(feat_mat, mapp, not_ovv = bos_ovv, ma
 Han temiz bir başlangıç
 mapp = constants.mapping ; bos_ovv = [word[0] if word[0] == word[1] else '' for word in mapp ] ; slang = tools.get_slangs()
 
-setcurrent = analysis.run([],[],[],slang,bos_ovv,mapp,threshold=1.5)
+#setcurrent = analysis.run([],[],[],slang,bos_ovv,mapp,threshold=1.5)
+setcurrent = analysis.run([],[],[],bos_ovv,threshold=1.5)
 
 setcurrent = analysis.run(setcurrent[3],setcurrent[2],setcurrent[1],slang,bos_ovv,mapp,threshold=1.5)
 
@@ -322,3 +323,10 @@ DETECTION
 
 oov_fun_1 = lambda x,y,z : False if y in ["@","E","U","#",",","G"] else True
 set_oov_detect_1 = analysis.test_detection(None,oov_fun_1)
+
+-------------
+
+Standalone
+
+tweet =
+setcurrent = analysis.run([],[],[],slang,bos_ovv,mapp,results = results, pos_tagged = pos_tagged, oov_fun = oov_fun)

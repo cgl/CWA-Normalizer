@@ -405,7 +405,8 @@ def show_results(res_mat,mapp, not_ovv = [], max_val = [1., 1., 0.5, 0.0, 1.0, 0
                     incorrect_answers.append((ind,answer))
         else: # people --> people , ppl --> ppl
             if ovv != correct_answer: # fn: ppl  --> ppl
-                incorrect_answers.append((ind,answer))
+                pass #incorrect_answers.append((ind,answer))
+
             else:                     # tn: people --> people
                 correctly_unchanged.append((ind,answer))
         if verbose:
