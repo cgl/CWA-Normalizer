@@ -466,11 +466,11 @@ def normalize(tweet):
     fm_reduced = add_nom_verbs(fmd,mapp,slang_threshold=slang_threshold)
     feat_mat = iter_calc_lev(matrix1,fm_reduced,mapp,not_ovv)
     res = calculate_results(feat_mat, mapp, max_val=max_val,threshold=threshold)
-    return res
+    return " ".join([res[word[0]] if res.has_key(word[0]) else word[0] for word in pos_tagged[0]])
 
 
 def calculate_results(res_mat,mapp, max_val = [1., 1., 0.5, 0.0, 1.0, 0.5], threshold = 1.5):
-    results = []
+    results = {}
     for ind in range (0,len(res_mat)):
         ovv = mapp[ind][0]
         res_dict = res_mat[ind]
@@ -485,6 +485,5 @@ def calculate_results(res_mat,mapp, max_val = [1., 1., 0.5, 0.0, 1.0, 0.5], thre
                     res_list.append(res_line)
             res_list.sort(key=lambda x: -float(x[-1]))
         answer = res_list[0][0] if res_list else ovv
-        print answer
-        results.append(res_list)
+        results[ovv] = answer
     return results
