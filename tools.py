@@ -370,7 +370,7 @@ def get_reduced_alt(word,count=2):
     if red1 != red2:
         red2_node = db_tweets.nodes.find_one({'node':red2, "ovv":False, 'freq' : {'$gt':100}})
         #not required after cleanning db from 2 letter OOV words like pl
-        red1_node =  None if (red2_node and len(red2) < 3 and not spell_check(red2)) else red2_node
+        red2_node =  None if (red2_node and len(red2) < 3 and not spell_check(red2)) else red2_node
 
         red2_freq =  red2_node['freq'] if  red2_node else 0
     if red1_node or red2_node:
