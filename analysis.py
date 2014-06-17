@@ -383,6 +383,8 @@ def show_results(res_mat,mapp, not_ovv = [], max_val = [1., 1., 0.5, 0.0, 1.0, 0
             res_list = []
             if res_dict:
                 for res_ind,cand in enumerate(res_dict):
+                    if(not tools.spell_check(cand)):
+                        continue;
                     score = calculate_score(res_dict[cand],max_val)
                     if score >= threshold:
                         res_dict[cand].append(round(score,7))
@@ -445,7 +447,7 @@ def run(matrix1,fmd,feat_mat,not_ovv,results = constants.results,
         index_list,nil,no_res = tools.top_n(res,not_ovv,mapp,ann_and_pos_tag,verbose=verbose)
         num_of_normed_words = len(ans) + len(incor)
         num_of_words_req_norm = len(filter(lambda x: x[0] != x[1], mapp))
-        tools.get_performance(len(ans),len(incor),len(fp))
+        tools.get_performance(len(ans),len(incor),len(fp),len(no_res))
         threshold = tools.get_score_threshold(index_list,res)
         tools.test_threshold(res,threshold)
         return [res, feat_mat, fmd, matrix1, ans, incor, nil, no_res, index_list, mapp, fp]
