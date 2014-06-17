@@ -226,12 +226,14 @@ res,ans,incorrects = analysis.show_results(feat_mat, mapp, not_ovv = bos_ovv, ma
 ------------
 
 Han temiz bir başlangıç
-mapp = constants.mapping ; bos_ovv = [word[0] if word[0] == word[1] else '' for word in mapp ] ; slang = tools.get_slangs()
+
+#mapp = constants.mapping ; bos_ovv = [word[0] if word[0] == word[1] else '' for word in mapp ] ; slang = tools.get_slangs()
 
 #setcurrent = analysis.run([],[],[],slang,bos_ovv,mapp,threshold=1.5)
-setcurrent = analysis.run([],[],[],bos_ovv,threshold=1.5)
+analysis.OOVFUNC = analysis.is_ovv
+setcurrent = analysis.run([],[],[],None, oov_fun = analysis.is_ovv)
 
-setcurrent = analysis.run(setcurrent[3],setcurrent[2],setcurrent[1],slang,bos_ovv,mapp,threshold=1.5)
+setcurrent = analysis.run(setcurrent[3],setcurrent[2],setcurrent[1],None,oov_fun = analysis.is_ovv )
 
 --------
 

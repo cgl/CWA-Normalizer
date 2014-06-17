@@ -426,6 +426,9 @@ def run(matrix1,fmd,feat_mat,not_ovv,results = constants.results,
         max_val = [1., 1., 0.5, 0.0, 1.0, 0.5], verbose=False, distance = 2,
         oov_fun = OOVFUNC):
     mapp = construct_mapp(pos_tagged, results, oov_fun)
+    if not_ovv is None:
+        bos_ovv = [word[0] if word[0] == word[1] else '' for word in mapp ]
+        not_ovv = bos_ovv
     if not matrix1:
         matrix1 = calc_mat(results = results, pos_tagged = pos_tagged, oov_fun = oov_fun)
     #max_val=[1.0, 1.0, 1.0, 1.0, 5.0, 1./1873142]
