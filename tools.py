@@ -411,7 +411,7 @@ def slang_analysis(slang,mapp):
 
 # tools.get_performance(len(ans),len(miss),len(incor), num_of_normed_words, num_of_words_req_norm)
 def get_performance(correct,incorrect,fp):
-    total_normalized_words = correct + fp
+    total_normalized_words = correct + fp + incorrect
     num_of_words_req_norm = correct + incorrect
     recall = float(correct)/num_of_words_req_norm
     precision = float(correct)/total_normalized_words
