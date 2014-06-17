@@ -294,7 +294,7 @@ def get_hb_dict():
 
 def get_slangs():
     slang = {}
-    with open('noslang.txt', 'rb') as file:
+    with open(os.path.join(os.path.dirname(__file__),'noslang.txt'), 'rb') as file:
         for line in file:
             line_splited = line.split("  -")
             slang[line_splited[0].strip()] = line_splited[1].strip()
