@@ -126,7 +126,6 @@ class Normalizer:
             if(cand_node):
                 cands_q.append({'position': position, 'cand':cand, 'weight': node['weight'] ,
                                 'freq' : cand_node['freq']})
-#                                'freq' : cand_node['freq']})
         return cands_q
 
 #-------------------------------------------------------

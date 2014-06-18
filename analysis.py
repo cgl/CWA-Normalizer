@@ -340,6 +340,29 @@ def calc_score_matrix_wo_tag(lo_postagged_tweets,results,ovv_fun,window_size, da
                                   ])
     return lo_candidates
 
+def calc_score_matrix_with_degree(lo_postagged_tweets,results,ovv_fun,window_size, database='tweets'):
+    lo_candidates = []
+    norm = normalizer.Normalizer(lo_postagged_tweets,database=database)
+    norm.m = window_size/2
+    for tweet_ind in range(0,len(lo_postagged_tweets)):
+        tweet_pos_tagged = lo_postagged_tweets[tweet_ind]
+        for j in range(0,len(tweet_pos_tagged)):
+            word = results[tweet_ind][j]
+            if ovv_fun(word[0],word[1],word[2]):
+                ovv_word = word[0]
+                ovv_tag = tweet_pos_tagged[j][1]
+                keys,score_matrix = graph.get_candidates_scores_with_degree(tweet_pos_tagged,ovv_word,ovv_tag)
+                ovv_word_reduced = tools.get_reduced_alt(ovv_word) or ovv_word
+                ovv_word_digited = tools.replace_digits(ovv_word_reduced)
+                lo_candidates.append([(ovv_word_digited,ovv_tag),keys,score_matrix])
+            elif word[1] == "OOV":
+                lo_candidates.append([(word[0],ovv_tag),[word[0]],
+                                      [[[numpy.array([    9.93355,  4191.     ]), 'new|A'],
+                                        [numpy.array([  1.26120000e+00,   4.19100000e+03]), 'pix|N']]]
+                                  ])
+    return lo_candidates
+
+
     '''
             if trans.__class__ == str:
                 ovv_word = ovv_word.replace(m.group(0),trans)
@@ -446,13 +469,15 @@ def show_results(res_mat,mapp, not_ovv = [], max_val = [1., 1., 0.5, 0.0, 1.0, 0
 def run(matrix1,fmd,feat_mat,not_ovv,results = constants.results,
         pos_tagged = constants.pos_tagged, threshold=1.5,slang_threshold=1,
         max_val = [1., 1., 0.5, 0.0, 1.0, 0.5], verbose=False, distance = 2,
-        oov_fun = OOVFUNC, wo_tag=False):
+        oov_fun = OOVFUNC, wo_tag=False, with_degree=False):
     mapp = construct_mapp(pos_tagged, results, oov_fun)
     if not_ovv is None:
         bos_ovv = [word[0] if word[0] == word[1] else '' for word in mapp ]
         not_ovv = bos_ovv
     if not matrix1:
-        if not wo_tag:
+        if with_degree:
+            matrix1 = calc_score_matrix_with_degree(pos_tagged,results,oov_fun,7,database='tweets2')
+        elif not wo_tag:
             matrix1 = calc_score_matrix(pos_tagged,results,oov_fun,7,database='tweets2')
         else:
             matrix1 = calc_score_matrix_wo_tag(pos_tagged,results,oov_fun,7,database='tweets2')

@@ -13,6 +13,49 @@ M = MAX_DIS -1
 
     # NO TAG
 
+def get_candidates_scores_with_degree(tweet_pos_tagged,ovv,ovv_tag):
+        froms,tos= get_neighbours(tweet_pos_tagged,ovv)
+        keys = []
+        score_matrix = []
+        for ind,(word, tag, acc) in enumerate(froms):
+          if tag not in [',','@']:
+            neigh_node = word.strip()
+            neigh_tag = tag
+            distance = len(froms) - 1 - ind
+            cands_q = get_cands_with_degree(ovv, ovv_tag, 'to', 'from', neigh_node, neigh_tag, distance)
+            keys,score_matrix = write_scores(neigh_node,neigh_tag,cands_q, keys, score_matrix)
+        for ind,(word, tag, acc) in enumerate(tos):
+          if tag not in [',','@']:
+            neigh_node = word.strip()
+            neigh_tag = tag
+            distance = ind
+            cands_q = get_cands_with_degree(ovv, ovv_tag, 'from', 'to', neigh_node, neigh_tag, distance)
+            keys,score_matrix = write_scores(neigh_node,neigh_tag,cands_q,keys,score_matrix)
+        return keys,score_matrix
+
+def get_cands_with_degree(ovv_word, ovv_tag, position, neigh_position, neigh_node, neigh_tag, distance):
+        candidates_q = db_tweets.edges.find({neigh_position:neigh_node, neigh_position+'_tag': neigh_tag,
+                                        position+'_tag': ovv_tag,
+                                        'dis': distance , 'weight' : { '$gt': 1 } })
+        cands_q = []
+        for node in candidates_q:
+            cand = node[position] # cand
+            if len(cand) < 2:
+                continue
+            # get frequencies of candidates
+            if ovv_tag == 'G':
+                try:
+                    cand_tag = db_tweets.nodes.find({'node':cand, 'ovv':False ,'freq': { '$gt': 8 } }).sort("freq", 1)[0]['tag']
+                    degree = db_tweets.edges.find({position : cand, position+"tag" : cand_tag}).count()
+                except IndexError:
+                    return []
+            else:
+                degree = db_tweets.edges.find({position : cand, position+"tag" : ovv_tag}).count()
+            cands_q.append({'position': position, 'cand':cand, 'weight': node['weight'] ,
+                                'freq' : degree})
+        return cands_q
+
+
 def get_candidates_scores_wo_tag(tweet_pos_tagged,ovv):
         froms,tos= get_neighbours(tweet_pos_tagged,ovv)
         keys = []
