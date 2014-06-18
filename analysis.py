@@ -441,7 +441,7 @@ def run(matrix1,fmd,feat_mat,not_ovv,results = constants.results,
         fmd = add_from_dict(fms,matrix1,distance,not_ovv)
     fm_reduced = add_nom_verbs(fmd,mapp,slang_threshold=slang_threshold)
     if not feat_mat:
-        feat_mat = iter_calc_lev(matrix1,fm_reduced,mapp,not_ovv)
+        feat_mat = iter_calc_lev(matrix1,fm_reduced,not_ovv)
         #feat_mat2 = add_weight(feat_mat,mapp,not_ovv)
     res,ans,incor, fp, tn = show_results(feat_mat, mapp, not_ovv = not_ovv, max_val=max_val,threshold=threshold)
     try:
@@ -472,7 +472,7 @@ def normalize(tweet):
     not_ovv = ['' for word in mapp ]
     fmd = add_from_dict(fms,matrix1,distance,not_ovv)
     fm_reduced = add_nom_verbs(fmd,mapp,slang_threshold=slang_threshold)
-    feat_mat = iter_calc_lev(matrix1,fm_reduced,mapp,not_ovv)
+    feat_mat = iter_calc_lev(matrix1,fm_reduced,not_ovv)
     res = calculate_results(feat_mat, mapp, max_val=max_val,threshold=threshold)
     return " ".join([res[word[0]] if res.has_key(word[0]) else word[0] for word in pos_tagged[0]])
 
