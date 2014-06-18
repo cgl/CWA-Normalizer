@@ -385,7 +385,7 @@ def show_results(res_mat,mapp, not_ovv = [], max_val = [1., 1., 0.5, 0.0, 1.0, 0
             res_list = []
             if res_dict:
                 for res_ind,cand in enumerate(res_dict):
-                    if(not tools.spell_check(cand) or ovv == cand): # spell check on graph is problematic
+                    if(not tools.spell_check(cand)): #or ovv == cand): # spell check on graph is problematic
                         continue;
                     score = calculate_score(res_dict[cand],max_val)
                     if score >= threshold:
