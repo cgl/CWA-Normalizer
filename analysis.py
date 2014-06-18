@@ -109,12 +109,14 @@ def get_candidates_from_graph(matrix_line,ovv,ovv_tag,cand_dict,edit_dis,met_dis
 
 def get_score_line(cand,sumof,ovv,ovv_tag):
     node =  tools.get_node(cand,tag=ovv_tag)
+    node_wo_tag =  tools.get_node(cand)
     freq = freq_score(int(node['freq'])) if node else 0.
+    freq_wo_tag = freq_score(int(node_wo_tag[0]['freq'])) if node_wo_tag else 0.
     line = [ #cand,
             sumof,                                # weight
             tools.lcsr(ovv,cand),                 # lcsr
             tools.distance(ovv,cand),             # distance
-            tools.common_letter_score(ovv,cand),  # shared letter
+            freq_wo_tag,                                        #tools.common_letter_score(ovv,cand),  # shared letter
             0,                                    # 7 : is_in_slang
             freq,
     ]
@@ -383,7 +385,7 @@ def show_results(res_mat,mapp, not_ovv = [], max_val = [1., 1., 0.5, 0.0, 1.0, 0
             res_list = []
             if res_dict:
                 for res_ind,cand in enumerate(res_dict):
-                    if(not tools.spell_check(cand)):
+                    if(not tools.spell_check(cand) or ovv == cand): # spell check on graph is problematic
                         continue;
                     score = calculate_score(res_dict[cand],max_val)
                     if score >= threshold:
@@ -447,7 +449,8 @@ def run(matrix1,fmd,feat_mat,not_ovv,results = constants.results,
         index_list,nil,no_res = tools.top_n(res,not_ovv,mapp,ann_and_pos_tag,verbose=verbose)
         num_of_normed_words = len(ans) + len(incor)
         num_of_words_req_norm = len(filter(lambda x: x[0] != x[1], mapp))
-        tools.get_performance(len(ans),len(incor),len(fp),len(no_res))
+        #num_of_words_not_changed = len(filter(lambda x: x==1,[1 if ans and mapp[ind][1] != mapp[ind][0] and ans[0][0] == mapp[ind][0] else 0 for (ind,ans) in enumerate(res)]))
+        tools.get_performance(len(ans),len(incor),len(fp),num_of_words_req_norm)
         threshold = tools.get_score_threshold(index_list,res)
         tools.test_threshold(res,threshold)
         return [res, feat_mat, fmd, matrix1, ans, incor, nil, no_res, index_list, mapp, fp]
