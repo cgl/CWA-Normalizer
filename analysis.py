@@ -113,11 +113,13 @@ def get_score_line(cand,sumof,ovv,ovv_tag):
     node_wo_tag =  tools.get_node(cand)
     freq = freq_score(int(node['freq'])) if node else 0.
     freq_wo_tag = freq_score(int(node_wo_tag[0]['freq'])) if node_wo_tag else 0.
+    degree = tools.get_degree_score(cand,ovv_tag)
     line = [ #cand,
             sumof,                                # weight
             tools.lcsr(ovv,cand),                 # lcsr
             tools.distance(ovv,cand),             # distance
-            freq_wo_tag,                                        #tools.common_letter_score(ovv,cand),  # shared letter
+            degree,  #freq_wo_tag,
+            #tools.common_letter_score(ovv,cand),  # shared letter
             0,                                    # 7 : is_in_slang
             freq,
     ]
