@@ -35,7 +35,7 @@ def get_candidates_scores_with_degree(tweet_pos_tagged,ovv,ovv_tag):
 
 def get_cands_with_degree(ovv_tag, position, neigh_position, neigh_node, neigh_tag, distance):
     try: # to limit all neighbours
-        db_tweets.nodes.find_one({'node':neigh_node, 'tag': neigh_tag, 'freq': { '$gt': 8 }})['freq']
+        db_tweets.nodes.find_one({'node':neigh_node, 'tag': neigh_tag})['freq']
     except:
         print(neigh_node)
         return []
@@ -51,7 +51,7 @@ def get_cands_with_degree(ovv_tag, position, neigh_position, neigh_node, neigh_t
         # get frequencies of candidates
         if ovv_tag == 'G':
             try:
-                cand_tag = db_tweets.nodes.find({'node':cand, 'ovv':False ,'freq': { '$gt': 8 } }).sort("freq", 1)[0]['tag']
+                cand_tag = db_tweets.nodes.find({'node':cand, 'ovv':False}).sort("freq", 1)[0]['tag']
                 degree = db_tweets.edges.find({position : cand, position+"tag" : cand_tag}).count()
             except IndexError:
                 return []
