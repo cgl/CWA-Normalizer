@@ -1,6 +1,6 @@
 import normalizer
 import CMUTweetTagger
-import graph
+
 #use tweets
 #db.copyDatabase("tweets","tweets_current","localhost")
 def update_edges_tag(database='tweets'):
@@ -35,15 +35,6 @@ def update_edges_tag(database='tweets'):
         nouns = [node['node'] for node in filter(lambda x: x['freq']> 8, norm.nodes.find({'tag':tag}))]
         norm.edges.update({'from': { '$in' : nouns}},{'$set' : {u'from_tag':tag } },multi=True)
         norm.edges.update({'to': { '$in' : nouns}},{'$set' : {u'to_tag':tag } },multi=True)
-
-def setDegrees(database='tweets2'):
-    query = graph.db_tweets.nodes.find()
-    for node in query:
-        indegree = graph.db_tweets.edges.find({'to': node['node'], 'to_tag': node['tag']}).count()
-        outdegree = graph.db_tweets.edges.find({'from': node['node'], 'from_tag': node['tag']}).count()
-        graph.db_tweets.nodes.update({'node':node['node'], 'tag': node['tag']},
-                                     {'$set' : {u'indegree':indegree, u'outdegree':outdegree }}, multi=False)
-        #print(node)
 
 def ensure_indexes(database='tweets'):
     from pymongo import MongoClient
