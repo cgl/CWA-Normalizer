@@ -7,7 +7,6 @@ from math import log
 from  numpy import array
 import pdb
 import logging
-from graph import write_scores, get_neighbours
 
 salient=0.001
 class Normalizer:
@@ -81,28 +80,38 @@ class Normalizer:
         return (word, self.isOvvStr(word, tag),
                 normalizer(word, tag, word_ind, self.texts[tweet_ind]))
 
+    def get_neighbours(self,tweet_pos_tagged,ovv):
+        froms = []
+        tos = []
+        for ind,(word, tag, acc) in enumerate(tweet_pos_tagged):
+            if word == ovv:
+                froms = tweet_pos_tagged[max(ind-self.m,0):ind]
+                tos = tweet_pos_tagged[ind+1:ind+1+self.m]
+        return froms, tos
+
 #---------------------------------------------------
     def get_candidates_scores(self, tweet_pos_tagged,ovv,ovv_tag):
-        froms,tos= get_neighbours(tweet_pos_tagged,ovv)
+        froms,tos= self.get_neighbours(tweet_pos_tagged,ovv)
         keys = []
         score_matrix = []
         for ind,(word, tag, acc) in enumerate(froms):
-          if tag not in [',','@']:
+#            if tag not in [',','@']:
             neigh_node = word.strip()
             neigh_tag = tag
             distance = len(froms) - 1 - ind
             cands_q = self.get_cands_with_weigh_freq(ovv, ovv_tag, 'to', 'from', neigh_node, neigh_tag, distance)
-            keys,score_matrix = write_scores(neigh_node,neigh_tag,cands_q, keys, score_matrix)
+            keys,score_matrix = self.write_scores(neigh_node,neigh_tag,cands_q, keys, score_matrix)
         for ind,(word, tag, acc) in enumerate(tos):
-          if tag not in [',','@']:
+#            if tag not in [',','@']:
             neigh_node = word.strip()
             neigh_tag = tag
             distance = ind
             cands_q = self.get_cands_with_weigh_freq(ovv, ovv_tag, 'from', 'to', neigh_node, neigh_tag, distance)
-            keys,score_matrix = write_scores(neigh_node,neigh_tag,cands_q,keys,score_matrix)
+            keys,score_matrix = self.write_scores(neigh_node,neigh_tag,cands_q,keys,score_matrix)
         return keys,score_matrix
 
     def get_cands_with_weigh_freq(self, ovv_word, ovv_tag, position, neigh_position, neigh_node, neigh_tag, distance):
+        #logging.debug("%s %s: {'%s':'%s', '%s_tag': '%s', '%s_tag': '%s', 'dis':%d, 'weight' : { '$gt': 1 }}" % (ovv_word,ovv_tag,neigh_position,neigh_node, neigh_position, neigh_tag, position , ovv_tag,distance))
         try:
             neigh_node_freq = self.nodes.find_one({'node':neigh_node,'tag': neigh_tag })['freq']
         except:
@@ -110,24 +119,32 @@ class Normalizer:
         candidates_q = self.edges.find({neigh_position:neigh_node, neigh_position+'_tag': neigh_tag,
                                         position+'_tag': ovv_tag,
                                         'dis': distance , 'weight' : { '$gt': 1 } })
+        if candidates_q.count() < 1 :
+            return []
         cands_q = []
         for node in candidates_q:
             cand = node[position] # cand
             if len(cand) < 2:
                 continue
             # get frequencies of candidates
-            if ovv_tag == 'G':
-                try:
-                    cand_node = self.nodes.find({'node':cand, 'ovv':False ,'freq': { '$gt': 8 } }).sort("freq", 1)[0]
-                except IndexError:
-                    return []
-            else:
-                cand_node = self.nodes.find_one({'node':cand,'tag': ovv_tag, 'ovv':False ,'freq': { '$gt': 8 } })
+            cand_node = self.nodes.find_one({'node':cand,'tag': ovv_tag, 'ovv':False ,'freq': { '$gt': 8 } })
             if(cand_node):
                 cands_q.append({'position': position, 'cand':cand, 'weight': node['weight'] ,
                                 'freq' : cand_node['freq']})
+#                                'freq' : cand_node['freq']})
         return cands_q
 
+    @staticmethod
+    def write_scores(neigh,neigh_tag,cands_q,keys,score_matrix):
+        for cand_q in cands_q:
+            new_scores = [array([cand_q['weight'],cand_q['freq']]),(neigh,neigh_tag)]
+            if cand_q['cand']  not in keys:
+                keys.append(cand_q['cand'])
+                score_matrix.append([new_scores])
+            else:
+                index = keys.index(cand_q['cand'])
+                score_matrix[index].append(new_scores)
+        return keys,score_matrix
 #-------------------------------------------------------
 
     def returnCandRight(self,tweet,ovvWord,ovvInd, ovvTag,scores):
@@ -186,3 +203,12 @@ class Normalizer:
         score_set = current_score_set + score_set
         scores.update({cand:score_set})
         return scores
+
+import CMUTweetTagger
+
+def get_norm():
+    tweets = [u"someone is cold game nd he needs to follow me",
+              u"only 3mths left in school . i wil always mis my skull , frnds and my teachrs"]
+    lot = CMUTweetTagger.runtagger_parse(tweets)
+    norm = Normalizer(lot,database='tweets')
+    return norm

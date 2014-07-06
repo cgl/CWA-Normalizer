@@ -22,6 +22,7 @@ pronouns = {u'2':u"to",u'w':u"with",u'4':u'for'}
 #mapp = constants.mapping
 dic= enchant.Dict("en_US")
 vowels = ('a', 'e', 'i', 'o', 'u', 'y')
+dims = ['weight', 'lcsr', 'distance', "com chars", "slang", "freq", "result"]
 chars = string.lowercase + string.digits + string.punctuation
 char_ind = [ord(x) for x in chars]
 char_map = dict(zip(chars,char_ind))
@@ -45,10 +46,9 @@ def build_mappings(results,pos_tagged,oov_fun):
 
 
 def spell_check(word):
-    twos = [u"am",u"an",u"as",u"at",u"be",u"by",u"do",u"go",u"hi",u"id",u"if",u"in",u"is",u"it",u"me",u"mr",u"ms",u"my",u"no",u"of",u"on",u"or",u"pm",u"so",u"to",u"up",u"us",u"vs",u"we"]
-    if len(word) > 2 :
+    if len(word) > 1 :
         return dic.check(word) or dic.check(word.capitalize())
-    elif word in [u"a", u"i"] or word in twos:
+    elif word in [u"a", u"i"]:
         return True
     else:
         return False
@@ -89,15 +89,24 @@ def top_n(res,not_ovv,mapp,ann_and_pos_tag,n=100,verbose=False):
                 print  [ (b,a,res[b][a][0]) for b in index_list[a][1]]
     return index_list,not_in_list, no_result
 
-def get_degree_score(cand,ovv_tag):
-    if ovv_tag == 'G':
-        try:
-            ovv_tag = db_tweets.nodes.find({'node':cand, 'ovv':False}).sort("freq", 1)[0]['tag']
-        except IndexError:
-            return 0
-    return max(db_tweets.edges.find({"to" : cand, "to_tag" : ovv_tag}).count(),
-                     db_tweets.edges.find({"from" : cand, "from_tag" : ovv_tag}).count())
+def pretty_top_n(res,ind_word,mapp,max_val,last=10):
+    ind = ind_word
+    ovv = mapp[ind_word][0]+"|"+mapp[ind_word][2]
+    print "%10.10s %10.6s %10.6s %10.6s %10.6s %10.6s %10.6s %10.6s Current res" % (ovv, dims[0], dims[1], dims[2], dims[3], dims[4], dims[5],dims[6])
+    for vec_pre in res[ind][:last]:
+        vec = [round(a,4) for a in array(vec_pre[1:len(max_val)+1]) * array(max_val)]
+        print "%10.10s %10.6f %10.6f %10.6f %10.6f %10.6f %10.6f %10.6f %10.6f"  % (vec_pre[0],vec[0],vec[1],vec[2],vec[3],vec[4],vec[5],vec_pre[-1],sum(vec))
 
+def pretty_max_min(res,feat_mat1,mapp):
+    maxes = max_values(res,mapp)
+    mins = min_values(res)
+    print "%8.8s %8.8s %8.8s %8.8s %8.8s %8.8s %8.8s " % (dims[0], dims[1], dims[2], dims[3], dims[4], dims[5],dims[6],)
+    print "%8.6f %8.6f %8.6f %8.6f %8.6f %8.2f %8.6f" % (mins[0], mins[1], mins[2], mins[3], mins[4], mins[5], mins[6],)
+    print "%8.6f %8.6f %8.6f %8.6f %8.6f %8.2f %8.6f" % (maxes[0], maxes[1], maxes[2], maxes[3], maxes[4], maxes[5],maxes[6],)
+
+def pretty_incorrects(incor,mapp):
+    for ind,ans in incor:
+        print "%4d  %10s %10s %10s" %(ind, mapp[ind][0], mapp[ind][1], ans)
 
 def get_node(word,tag=None,ovv=False):
     word = word.lower()
@@ -284,11 +293,22 @@ def get_hb_dict():
 
 def get_slangs():
     slang = {}
-    with open(os.path.join(os.path.dirname(__file__),'noslang.txt'), 'rb') as file:
+    with open('noslang.txt', 'rb') as file:
         for line in file:
             line_splited = line.split("  -")
             slang[line_splited[0].strip()] = line_splited[1].strip()
     return slang
+
+def find_slang(nil,slang):
+    i = 0
+    slang = get_slangs()
+    for a in nil:
+        if slang.has_key(a[1]) and slang.get(a[1]).strip() == a[2]: # strip sil
+            #print a[1],a[2]
+            i+=1
+        elif in_edit_dis(a[1],a[2],3):
+            print a[1],a[2],editdist_edits(a[1],a[2])
+    print i
 
 def in_edit_dis(word1,word2,dis):
     try:
@@ -342,15 +362,9 @@ def get_reduced_alt(word,count=2):
     red1_node = db_tweets.nodes.find_one({'node':red1, "ovv":False ,'freq' : {'$gt':100}})
     red2_node = None
     red2_freq = 0
-    #not required after cleanning db from 2 letter OOV words like pl
-    #red1_node =  None if (red1_node and len(red1) < 3 and not spell_check(red1)) else red1_node
-
     red1_freq =  red1_node['freq'] if  red1_node else 0
     if red1 != red2:
         red2_node = db_tweets.nodes.find_one({'node':red2, "ovv":False, 'freq' : {'$gt':100}})
-        #not required after cleanning db from 2 letter OOV words like pl
-        #red2_node =  None if (red2_node and len(red2) < 3 and not spell_check(red2)) else red2_node
-
         red2_freq =  red2_node['freq'] if  red2_node else 0
     if red1_node or red2_node:
         return red1_node['node'] if red1_freq >= red2_freq else red2_node['node']
@@ -373,9 +387,31 @@ def replace_digits_alt(oov_word):
     dig_node = db_tweets.nodes.find_one({'node':digited, "ovv":False, 'freq' : {'$gt':100}})
     return digited if dig_node else None
 
+def slang_analysis(slang,mapp):
+    i = 0
+    for tup in mapp:
+        multi = False
+        correct_answer = False
+        ill = False
+        sl = None
+        ovv = get_reduced(tup[0])
+        if slang.has_key(ovv):
+            sl = slang.get(ovv)
+            if len(sl.split(" ")) > 1:
+                multi = True
+            elif  sl  == tup[1]:
+                i += 1
+                correct_answer = True
+            elif tup[0] != tup[1]:
+                #print tup[0],tup[1],sl
+                ill = True
+        print "%s [%s] :\t %s , %r, %r, %r" %(tup[0],tup[1],sl,multi,ill,correct_answer)
+    print "Corrected %d word" %i
+
 # tools.get_performance(len(ans),len(miss),len(incor), num_of_normed_words, num_of_words_req_norm)
-def get_performance(correct,incorrect,fp,num_of_words_req_norm):
-    total_normalized_words = correct + fp + incorrect
+def get_performance(correct,incorrect,fp):
+    total_normalized_words = correct + fp
+    num_of_words_req_norm = correct + incorrect
     recall = float(correct)/num_of_words_req_norm
     precision = float(correct)/total_normalized_words
     fmeasure = 2 * precision * recall / (precision+recall)
@@ -422,6 +458,11 @@ def test_threshold(res,threshold):
             else:
                 buyukler += 1
     print "There is %d result below and %d result above the threshold" %(kucukler,buyukler)
+
+def show_nth_index(ind,index_list,res,mapp,max_val,last=4):
+    for rr in index_list[ind][1]:
+        print rr,mapp[rr]
+        pretty_top_n(res,rr,mapp,max_val,last=last)
 
 def create_extended_mapp(results,not_oov):
     i = 0
