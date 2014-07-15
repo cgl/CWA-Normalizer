@@ -46,7 +46,7 @@ def build_mappings(results,pos_tagged,oov_fun):
 def spell_check(word):
     twos = [u"am",u"an",u"as",u"at",u"be",u"by",u"do",u"go",u"hi",u"id",u"if",u"in",u"is",u"it",u"me",u"mr",u"ms",u"my",u"no",u"of",u"on",u"or",u"pm",u"so",u"to",u"up",u"us",u"vs",u"we"]
     if len(word) > 2 :
-        return dic.check(word) #or dic.check(word.capitalize())
+        return dic.check(word) or dic.check(word.capitalize())
     elif word in [u"a", u"i"] or word in twos:
         return True
     else:
