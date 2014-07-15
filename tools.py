@@ -91,7 +91,7 @@ def top_n(res,not_ovv,mapp,ann_and_pos_tag,n=100,verbose=False):
 def get_degree_score(cand,ovv_tag):
     if ovv_tag == 'G':
         try:
-            ovv_tag = db_tweets.nodes.find({'node':cand, 'ovv':False}).sort("freq", 1)[0]['tag']
+            ovv_tag = db_tweets.nodes.find({'node':cand, 'ovv':False}).sort("freq", -1)[0]['tag']
         except IndexError:
             return 0
     return max(db_tweets.edges.find({"to" : cand, "to_tag" : ovv_tag}).count(),
