@@ -39,7 +39,7 @@ def main(index=False):
 if __name__ == "__main__ ":
     main()
 
-# Bu fonksiyon ne is yapiyor belli degil
+# Usage not_ovv = detect_ovv(slang,mapp)
 def detect_ovv(slang,mapp):
     not_ovv = []
     for ind in range (0,len(mapp)):

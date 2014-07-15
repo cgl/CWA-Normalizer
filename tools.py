@@ -43,7 +43,6 @@ def build_mappings(results,pos_tagged,oov_fun):
     return mapp
 #ann_and_pos_tag = build_mappings(constants.results,constants.pos_tagged)
 
-
 def spell_check(word):
     twos = [u"am",u"an",u"as",u"at",u"be",u"by",u"do",u"go",u"hi",u"id",u"if",u"in",u"is",u"it",u"me",u"mr",u"ms",u"my",u"no",u"of",u"on",u"or",u"pm",u"so",u"to",u"up",u"us",u"vs",u"we"]
     if len(word) > 2 :
@@ -232,7 +231,6 @@ def metaphone_distance_filter(ovv,cand,met_dis):
                         dist = sum(editdist_edits(met+".",met2+".")[1])
                     if  dist <= met_dis:
                         return True
-
     return False
 
 def soundex_distance(ovv_snd,cand):
@@ -250,6 +248,10 @@ def soundex_distance(ovv_snd,cand):
     snd_dis = lev
     return snd_dis
 
+# This function creates/updates the dictionary of clean words
+# { "_id" : ObjectId("52.."), "node" : "suzuki",    "met0" : "SSK",  "met1" : "STSK", "ovv" : false }
+# { "_id" : ObjectId("52.."), "node" : "acquiring", "met0" : "AKRN",                  "ovv" : false }
+#
 def get_dict():
     cursor = db_tweets.nodes.find({"ovv":False,"freq":{"$gt": 100}}).sort("freq",-1)
     print cursor.count()
@@ -271,7 +273,7 @@ def get_dict():
                     pass
             if query:
                 query["node"] = word
-                query["ovv"] = node['ovv']
+                query["ovv"] = node['ovv'] # False
                 db_dict.dic.insert(query)
 
 def get_hb_dict():
@@ -324,7 +326,6 @@ def get_from_dict_met(word,met_map,met_dis=1):
     return cands
 
 def get_from_dict_dis(word,tag,clean_words,distance):
-
     cands = [cand for cand in clean_words[tag] if in_edit_dis(word,cand,distance)] if clean_words.has_key(tag) else []
     return cands
 
