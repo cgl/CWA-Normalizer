@@ -450,6 +450,7 @@ def run(matrix1,fmd,feat_mat,not_ovv,results = constants.results,
         num_of_words_req_norm = len(filter(lambda x: x[0] != x[1], mapp))
         #num_of_words_not_changed = len(filter(lambda x: x==1,[1 if ans and mapp[ind][1] != mapp[ind][0] and ans[0][0] == mapp[ind][0] else 0 for (ind,ans) in enumerate(res)]))
         tools.get_performance(len(ans),len(incor),len(fp),num_of_words_req_norm)
+        tools.get_performance_old(len(ans),len(no_res),len(incor),len([oov for oov in not_ovv if oov == '']))
         threshold = tools.get_score_threshold(index_list,res)
         tools.test_threshold(res,threshold)
         return [res, feat_mat, fmd, matrix1, ans, incor, nil, no_res, index_list, mapp, fp]
@@ -517,7 +518,7 @@ def run_old(matrix1,fmd,feat_mat,slang,not_ovv,mapp,results = constants.results,
     try:
         ann_and_pos_tag = tools.build_mappings(results,pos_tagged,OOVFUNC)
         index_list,nil,no_res = tools.top_n(res,not_ovv,mapp,ann_and_pos_tag,verbose=verbose)
-        tools.get_performance(len(ans),len(no_res),len(incor),len([oov for oov in not_ovv if oov == '']))
+        tools.get_performance_old(len(ans),len(no_res),len(incor),len([oov for oov in not_ovv if oov == '']))
         threshold = tools.get_score_threshold(index_list,res)
         tools.test_threshold(res,threshold)
         return [res, feat_mat, fmd, matrix1, ans, incor, nil, no_res, index_list]
