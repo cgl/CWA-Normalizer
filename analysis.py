@@ -386,7 +386,7 @@ def show_results(res_mat,mapp, not_ovv = [], max_val = [1., 1., 0.5, 0.0, 1.0, 0
                     #if(not tools.spell_check(cand)): #or ovv == cand): # spell check on graph is problematic
                     #    continue;
                     score = calculate_score(res_dict[cand],max_val)
-                    if score >= threshold:
+                    if score >= threshold and cand != ovv:
                         res_dict[cand].append(round(score,7))
                         res_line = [cand]
                         res_line.extend(res_dict[cand])
