@@ -494,3 +494,34 @@ def calculate_results(res_mat,mapp, max_val = [1., 1., 0.5, 0.0, 1.0, 0.5], thre
         answer = res_list[0][0] if res_list else ovv
         results[ovv] = answer
     return results
+
+def run_old(matrix1,fmd,feat_mat,slang,not_ovv,mapp,results = constants.results,
+        pos_tagged = constants.pos_tagged, threshold=1.5,slang_threshold=1,
+        max_val = [1., 1., 0.5, 0.0, 1.0, 0.5], verbose=False, distance = 2):
+    if not matrix1:
+        window_size = 7
+        matrix1 = calc_score_matrix(pos_tagged,results,OOVFUNC,window_size,database='tweets2')
+    #max_val=[1.0, 1.0, 1.0, 1.0, 5.0, 1./1873142]
+    if not slang:
+        slang = tools.get_slangs()
+    if not not_ovv:
+        not_ovv = [word[0] if word[0] == word[1] else '' for word in mapp ]
+    fms = add_slangs(matrix1,slang)
+    if not fmd:
+        fmd = add_from_dict(fms,matrix1,distance,not_ovv)
+    fm_reduced = add_nom_verbs(fmd,mapp,slang_threshold=slang_threshold)
+    if not feat_mat:
+        feat_mat = iter_calc_lev(matrix1, fm_reduced, not_ovv)
+        #feat_mat2 = add_weight(feat_mat,mapp,not_ovv)
+    res,ans,incor, fp, tn = show_results(feat_mat, mapp, not_ovv = not_ovv, max_val=max_val,threshold=threshold)
+    try:
+        ann_and_pos_tag = tools.build_mappings(results,pos_tagged,OOVFUNC)
+        index_list,nil,no_res = tools.top_n(res,not_ovv,mapp,ann_and_pos_tag,verbose=verbose)
+        tools.get_performance(len(ans),len(no_res),len(incor),len([oov for oov in not_ovv if oov == '']))
+        threshold = tools.get_score_threshold(index_list,res)
+        tools.test_threshold(res,threshold)
+        return [res, feat_mat, fmd, matrix1, ans, incor, nil, no_res, index_list]
+        #        0   1         2    3        4    5      6    7       8
+    except:
+        print(traceback.format_exc())
+        return [res, feat_mat, fmd, matrix1, ans, incor]
