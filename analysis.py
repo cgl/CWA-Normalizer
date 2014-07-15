@@ -44,7 +44,8 @@ def detect_ovv(slang,mapp):
     not_ovv = []
     for ind in range (0,len(mapp)):
         ovv = mapp[ind][0]
-        ovv_reduced = tools.get_reduced_alt(ovv) or ovv
+        ovv_reduced = tools.get_reduced(ovv,count=2)
+        #ovv_reduced = tools.get_reduced_alt(ovv) or ovv
         if slang.has_key(ovv_reduced):
             s_word = slang.get(ovv) or slang.get(ovv_reduced)
             if len(s_word.split(" ")) >  1:
@@ -105,7 +106,8 @@ def get_candidates_from_graph(matrix_line,ovv,ovv_tag,cand_dict,edit_dis,met_dis
         if not cand_dict.has_key(cand):
             cand_dict[cand] = get_score_line(cand,sumof,ovv,ovv_tag)
         else:
-            cand_dict[cand][0] += sumof
+            cand_dict[cand][0] = sumof
+            #cand_dict[cand][0] += sumof
     return cand_dict
 
 def get_score_line(cand,sumof,ovv,ovv_tag):
@@ -145,7 +147,8 @@ def add_slangs(mat,slang,verbose=False):
     res_mat = []
     for ind in range (0,len(mat)):
         ovv = mat[ind][0][0]
-        ovv_reduced = tools.get_reduced_alt(ovv) or ovv
+        ovv_reduced = tools.get_reduced(ovv,count=2)
+        #ovv_reduced = tools.get_reduced_alt(ovv) or ovv
         cands = {}
         if slang.has_key(ovv_reduced):
             sl = slang.get(ovv_reduced).lower()
@@ -283,7 +286,8 @@ def add_nom_verbs(fm,mapp,slang_threshold=1):
             if ovv == u"2":
                 cand = u"too"
                 add_candidate(cands,cand,ovv,ovv_tag,slang_threshold)
-        cand = tools.get_reduced_alt(ovv)
+        cand = tools.get_reduced(ovv,count=2)
+        #cand = tools.get_reduced_alt(ovv)
         if cand and ovv != cand:
             add_candidate(cands,cand,ovv,ovv_tag,slang_threshold*0.8)
         cand = tools.replace_digits_alt(ovv)
@@ -310,7 +314,8 @@ def calc_score_matrix(lo_postagged_tweets,results,ovv_fun,window_size, database=
                 ovv_word = word[0]
                 ovv_tag = tweet_pos_tagged[j][1]
                 keys,score_matrix = norm.get_candidates_scores(tweet_pos_tagged,ovv_word,ovv_tag)
-                ovv_word_reduced = tools.get_reduced_alt(ovv_word) or ovv_word
+                ovv_word_reduced = tools.get_reduced(ovv_word,count=2)
+                #ovv_word_reduced = tools.get_reduced_alt(ovv_word) or ovv_word
                 ovv_word_digited = tools.replace_digits(ovv_word_reduced)
                 lo_candidates.append([(ovv_word_digited,ovv_tag),keys,score_matrix])
             elif word[1] == "OOV":
@@ -332,7 +337,8 @@ def calc_score_matrix_wo_tag(lo_postagged_tweets,results,ovv_fun,window_size, da
                 ovv_word = word[0]
                 ovv_tag = tweet_pos_tagged[j][1]
                 keys,score_matrix = graph.get_candidates_scores_wo_tag(tweet_pos_tagged,ovv_word)
-                ovv_word_reduced = tools.get_reduced_alt(ovv_word) or ovv_word
+                ovv_word_reduced = tools.get_reduced(ovv_word,count=2)
+                #ovv_word_reduced = tools.get_reduced_alt(ovv_word) or ovv_word
                 ovv_word_digited = tools.replace_digits(ovv_word_reduced)
                 lo_candidates.append([(ovv_word_digited,ovv_tag),keys,score_matrix])
             elif word[1] == "OOV":
@@ -354,7 +360,8 @@ def calc_score_matrix_with_degree(lo_postagged_tweets,results,ovv_fun,window_siz
                 ovv_word = word[0]
                 ovv_tag = tweet_pos_tagged[j][1]
                 keys,score_matrix = graph.get_candidates_scores_with_degree(tweet_pos_tagged,ovv_word,ovv_tag)
-                ovv_word_reduced = tools.get_reduced_alt(ovv_word) or ovv_word
+                ovv_word_reduced = tools.get_reduced(ovv_word,count=2)
+                #ovv_word_reduced = tools.get_reduced_alt(ovv_word) or ovv_word
                 ovv_word_digited = tools.replace_digits(ovv_word_reduced)
                 lo_candidates.append([(ovv_word_digited,ovv_tag),keys,score_matrix])
             elif word[1] == "OOV":
