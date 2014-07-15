@@ -226,11 +226,14 @@ res,ans,incorrects = analysis.show_results(feat_mat, mapp, not_ovv = bos_ovv, ma
 ------------
 
 Han temiz bir başlangıç
-mapp = constants.mapping ; bos_ovv = [word[0] if word[0] == word[1] else '' for word in mapp ] ; slang = tools.get_slangs()
 
-setcurrent = analysis.run([],[],[],slang,bos_ovv,mapp,threshold=1.5)
+#mapp = constants.mapping ; bos_ovv = [word[0] if word[0] == word[1] else '' for word in mapp ] ; slang = tools.get_slangs()
 
-setcurrent = analysis.run(setcurrent[3],setcurrent[2],setcurrent[1],slang,bos_ovv,mapp,threshold=1.5)
+#setcurrent = analysis.run([],[],[],slang,bos_ovv,mapp,threshold=1.5)
+analysis.OOVFUNC = analysis.is_ovv
+setcurrent = analysis.run([],[],[],None, oov_fun = analysis.is_ovv)
+
+setcurrent = analysis.run(setcurrent[3],setcurrent[2],setcurrent[1],None,oov_fun = analysis.is_ovv )
 
 --------
 
@@ -300,6 +303,13 @@ for beta in [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]:
         aaa = analysis.run(set_penn5[3],set_penn5[2],set_penn5[1],slang,bos_ovv_penn5,mapp_penn5,results = results_penn, pos_tagged = pos_tagged_penn, max_val = max_val, threshold=1.5)
         print("**********************")
 
+for beta in [ 0.5]:
+    for lam in [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9,1]:
+        max_val = [1., 1., lam , 0.0, 1, beta]
+        print("%f : %f" %(lam,beta))
+        aaa = analysis.run(set_penn5[3],set_penn5[2],set_penn5[1],slang,bos_ovv_penn5,mapp_penn5,results = results_penn, pos_tagged = pos_tagged_penn, max_val = max_val, threshold=1.5)
+        print("**********************")
+
 
 for lam in map(lambda x: x/10,range(0,11)):
     for beta in map(lambda x: x/10,range(0,11)):
@@ -307,3 +317,18 @@ for lam in map(lambda x: x/10,range(0,11)):
         print("%f : %f" %(lam,beta))
         set_penn_tr2 = analysis.run(set_penn_tr[3],set_penn_tr[2],set_penn_tr[1],slang,bos_ovv_penn_tr,mapp_penn_tr, results = results_penn_tr, pos_tagged = pos_tagged_penn, max_val = max_val, threshold=1.5)
         print("**********************")
+
+
+-------------
+
+DETECTION
+
+oov_fun_1 = lambda x,y,z : False if y in ["@","E","U","#",",","G"] else True
+set_oov_detect_1 = analysis.test_detection(None,oov_fun_1)
+
+-------------
+
+Standalone
+
+tweet =
+setcurrent = analysis.run([],[],[],slang,bos_ovv,mapp,results = results, pos_tagged = pos_tagged, oov_fun = oov_fun)
