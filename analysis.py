@@ -319,11 +319,9 @@ def calc_score_matrix(lo_postagged_tweets,results,ovv_fun,window_size, database=
                 #ovv_word_reduced = tools.get_reduced_alt(ovv_word) or ovv_word
                 ovv_word_digited = tools.replace_digits(ovv_word_reduced)
                 lo_candidates.append([(ovv_word_digited,ovv_tag),keys,score_matrix])
-            elif word[1] == "OOV":
-                lo_candidates.append([(word[0],ovv_tag),[word[0]],
-                                      [[[numpy.array([    9.93355,  4191.     ]), 'new|A'],
-                                        [numpy.array([  1.26120000e+00,   4.19100000e+03]), 'pix|N']]]
-                                  ])
+                #lo_candidates.append([(word[0],ovv_tag),[word[0]], # to append ovv word itself to the candidate list
+                #                      [[[numpy.array([    9.93355,  4191.     ]), 'new|A'],
+                #                        [numpy.array([  1.26120000e+00,   4.19100000e+03]), 'pix|N']]] ])
     return lo_candidates
 
 def construct_mapp_penn(pos_tagged_penn, results_penn):
