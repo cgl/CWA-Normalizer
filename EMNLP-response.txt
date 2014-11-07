@@ -1,0 +1,153 @@
+We would like to thank the reviewers for their valuable comments and feedback.
+
+One of the major issues raised is a better analysis/evaluation of the system. The baseline we have adapted from Han et al. (2011) has two major components, lexical variants and slang dictionary look up. Therefore we started with three baselines, using only lexSimScore, only externalScore and lexSimScore together with externalScore from equation 7. The three baseline scores were 64.5, 28.2 and 77. When we add our major contextual similarity measure (EW Score) to baseline 3 precision, recall and f-measure values are 91.1 57.6 and 70, outperforming results of Hassan and Menezes (2013). We achieved 81.5, 79, 80 with \beta=1 (86.3, 78.8, 82.3 with \beta=0.5) when the minor contextual similarity measure (freqScore) added to baseline 3. 
+
+Our motivation behind introducing the /lambda and /beta parameters was to investigate the importance of metaphone and frequency measures compared to major measures. Our tests showed that our system performs minimum 70.7 f-measure for /lambda and /beta values greater than 0.1 and minimum 79.8 f-measure for /lambda and /beta values greater than 0.3 on LexNorm 1.1. We used uniform interpolation following Hassan and Menezes (2013) and set /lambda and /beta values as 0.5 but the tests showed there are better performing settings.
+
+One last addition to the evaluation is about the threshold value. To achieve a high precision normalisation system our aim is to find candidates those outperform the lexSimScore(oov,oov)=1+/beta with support of contextual measures. The threshold value is not arbitrary but the sum of max edit distance value plus /beta. The system can be used with higher threshold values for higher precision, but the tradeoff of losing from recall as in Hassan and Menezes (2013).
+
+We can strengthen our analysis by discussing above comments in detail.
+
+
+Since our system ranks the OOV word itself as a candidate if it is  
+
+A detailed discussion can be added to Analysis section.
+
+
+
+One of the major issues raised is a better comparison with previous work. Previous studies approach the problem as a sentence classification task. To the best of our knowledge, this is the first study that tackles a different and a more difficult problem, which is detecting the portions of sentences which are speculative. Rather than classifying the sentences, we formulate the problem as classifying the potential keywords as speculative or not and then develop a rule-based method to resolve their scopes. This is important because we allow a sentence to include both speculative and non-speculative parts. (This is similar to the difference between extractive summarization at the level of sentences vs. the level of content units). There is no prior work that we can directly compare our results with.
+But, we can include the results of previous studies for sentence classification to the Related Work section. Only the substring matching approach (Light et al., 2004) could be adapted as a keyword classification task, since the substrings are keywords themselves and we could use this approach as a baseline in the keyword classification sub-problem.
+
+To the best of our knowledge, the BioScope corpus (1273 abstracts and 9 full text articles) is the first and the only data set which has been annotated for speculative sentence fragments and we report the first results on this corpus. To facilitate accurate comparison with future studies we also make available the PubMed IDs of the articles that we used as a test set in each fold.
+
+Below are clarifications to some other concerns and comments.
+
+- "it is not clear to me, why "or" counts as a speculative word..."
+
+"or" conveys a speculative meaning in statements such as "A or B", where we are not certain whether both A and B are correct, only A is correct, or only B is correct. In the example sentence in Figure 1, "might" acts as a clue for the speculative meaning of "or", but "or" by itself is used in speculative context as well, since we are not certain whether both of the clauses are true, or only one is true. Similarly, in the statement "viral <or> reactive airways disease is detected", we are not certain which type of airways disease is detected. ?or? is used in speculative context in 9% and 13% of its occurrences in the abstracts and full papers, respectively.
+
+- "The rules in section 5 seem to be based on the syntactic structure of the Penn Tree Bank. I wonder how generic they are,..."
+
+The examples given in the paper are based on the Penn Tree Bank. But, the rules are generic (e.g. "the scope of a verb followed by an infinitival clause, extends to the whole sentence").
+
+- "...you note that the non-stemmed versions and the BOW1 performed better than stemmed one and BOW 2/3, but you do not explain why this might be the case..."
+We will include a discussion about this in the paper. Wider local context might create sparse data and degrade performance. Consider the example, "it appears that TP53 interacts with AR". The keyword "appears", and BOW1 ("it" and "that") are more relevant for the speculative context of the keyword than "TP53", "interacts", and "with". With regard to stemming, consider "appears" and "appearance". They have the same stems, but "appearance" is less likely to be a real speculation keyword.
+
+- "It seems that the dependency feature require that the complete text has to be parsed..."
+
+The sentences that contain a potential speculation keyword need to be parsed to solve both the keyword identification and the scope resolution sub-problems. 
+
+- "...you present the results of different feature combinations. I wonder why not using a combination like KW, BOW 1;..."
+
+In each step, the feature that leads to the best performance is included to the feature set. For example, KW, DEP is used instead of KW, BOW1 because including DEP to KW led to better performance compared to adding BOW1 to KW.
+
+- "Having two separate collections, it would be very interesting to know the performance when cross-tagging..."
+
+Thank you for this suggestion. We can include such an analysis in the paper.
+
+- "...it would be effortless to test with additional kernels beyond the bare linear one."
+
+We aimed to investigate different types of features and therefore, set the kernel function static while varying the feature set.
+
+?...the references cover the general problem addressed by the paper and the processing tools but not the specific solutions exploited...?
+
+Thank you for this point. We will include references to studies on other NLP problems such as summarization (which make use of positional features) and word-sense-disambiguation which make use of features such as surrounding and co-occurring words.
+
+
+evaluation: early work on lexical normalization assumed that the tokens which require normalization are pre-identified by an oracle system, but there is no need for that in your method, and, of course, it makes the method completely impractical. I would like to see a comparison with methods which assume pre-identification, but also with methods that don't (including the recent paper of Chrupała (2014)), to get a better sense of the true worth of the proposed method.
+
+Nasıl bir pre-identication yapmalı?
+Chrupała WER vermiş biz de WER mi verelim?
+
+—
+
+I would also ideally like to see some analysis of the computational complexity of the proposed method, to get a sense of its real-time tractability.
+
+[p7] what is the computational complexity of the method? the number of lexical normalisation candidates for the target word and each context word will vary of course, but if you assume some average "fanout" factor of m for each, is it O(m^distance * n), where n is the number of OOV tokens in the input? Some analysis and comparison with other methods would be good
+
+complexity nasıl hesaplanacak?
+
+—
+
+[p3] another relevant publication is:
+
+Chrupała, Grzegorz (2014) Normalizing tweets with edit scripts and recurrent neural embeddings, In Proc of ACL 2014.
+
+—
+
+[p4] perhaps explicitly mention in the text that you are using the ARK POS tagger (rather than just implicitly by citation and in the caption of Table 3), which tagset (Penn vs. Twitter) and the version number
+
+We used ARK POS tagger version 0.3.2 with Twitter tag set.
+
+—
+
+[p5] you use a strict POS matching heuristic, where I wonder whether allowing a bit of latitude would be better, e.g. allowing OOV tokens tagged as proper nouns to match tokens tagged as common nouns, and vice versa, or to have some cost matrix between different tag pairs
+
+Only 76 out of 1184 ill-formed words in the graph has a frequency less than 8 with the detected tag.
+
+——
+
+[p7] you normalise one word at a time in your model (incorporating normalisation candidates for the context words), but why not jointly normalise in a single graph?
+
+Bunu anlamadım “jointly normalise in a single graph” derken bizim todo olan işi mi kastediyor?
+——
+
+[p8] in Table 5, make mention of the fact that Liu et al. (2011) assumes oracle identification of tokens which require normalisation, as does Han and Baldwin (2011); you also seem to assume this, despite not needing to. 
+
+—> Kendi dictionary’mizi oluşturmamızı kastediyor?
+
+I would like to see results for your method with oracle identification of tokens which require normalisation (compared with the 2011 papers), and results for your method *without* this, compared with the two 2013 papers and Han et al. (2012)
+
+Yeni bir tablo oluşturulabilir.
+
+Hassan clean corpus’tan dictionary oluşturup 10’dan fazla frekansı olanları normalize etmiyor.
+Pang ise trainingde değil ama test aşamasında Han’ları kullanıyor.
+
+In the normalization task that we consider, the to- kens to be normalized are specified in advance. This is the same task specification as in the prior work against which we compare. At test time, our system attempts normalizes all such tokens; every error is thus both a false positive and false negative, so pre- cision equals to recall for this task; this is also true for Han and Baldwin (2011) and Liu et al. (2011).
+
+——
+
+since the total score of a normalization candidate is the sum of three components weighted by lambda and beta, the choice of those two parameters would seem to be important for performance.
+
+—
+lambda = beta = 1, threshold = 1.5
+(0.8136752136752137, 0.8040540540540541, 0.8088360237892948)
+
+lambda = beta = 1, threshold = max lex score
+(0.849005424954792, 0.7930743243243243, 0.8200873362445414)
+
+—-
+
+My main concern here is with the complexity of this system, and the relative arbitrariness of some of the equations and parameters -- in particular, since the total score of a normalization candidate is the sum of three components weighted by lambda and beta, the choice of those two parameters would seem to be important for performance.
+
+—
+
+The empirical performance here doesn't show significant gains against the state of the art (82.2 vs. 82.09), and in fact this 82.2 result would seem to be with the best choice of parameters on the test set; table 7 shows that it is the only number in a threshold sweep that beats this prior work. More worrying here is how sensitive the F-score is to this particular choice of parameter, with values ranging down to to 70.5; this suggests that the other parameter values (lambda and beta) might also show such sensitivity as well.
+
+Buradaki düşüş 72.3’ten 70’e sanki 82.2’den 70’e gibi bahsetmiş. Threshold değerlerini lambda ve beta üzerinden lambda + beta 2* lambda şeklinde verebiliriz.
+
+**
+
+1. How were the parameters set (specifically, \lambda and \beta)? Did the authors perform experiments to measure sensitivity to these parameters?
+
+
+——
+
+Finally, the framing of the normalization problem in the introduction needs to show more awareness of the complexity of the linguistic issues at play in this task (rather than a simple engineering problem) -- see, for example, Eisenstein
+
+2013. Seeing such dialectal forms as "noisy" or "corrupted" versions of "standard" forms entails a range of assumptions that need discussion (for example, is "bruh" really always a "noisy" or "corrupted" version of "brother"). In some applications these assumptions may be valid, but in others they are certainly not.
+
+??
+—
+
+2. How do the dictionary based approaches perform by themselves? In other words, report a baseline that only relies on external resources.
+
+3. It appears that the externalScore component might overwhelm the candScore (in Eq. 7) The authors could consider linear comboination of the factors in Eq.7. Specifically, what was the performance with only lexSimScore, only contSimScore, and only externalScore?
+
+Done
+
+—
+
+In general, the paper describes many components, and it is unclear how much these components contribute to the overall performance. A detailed analysis section might help answer these concerns. Some duplicate and verbose textual descriptions can be shortened to get some additional space for analysis and discussion.
+
+
