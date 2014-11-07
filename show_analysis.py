@@ -18,7 +18,7 @@ def pretty_max_min(res,feat_mat1,mapp):
 
 def pretty_incorrects(incor,mapp):
     for ind,ans in incor:
-        print "%4d  %10s %10s %10s" %(ind, mapp[ind][0], mapp[ind][1], ans)
+        print "%4d  %10s %10s %10s %s" %(ind, mapp[ind][0], mapp[ind][1], ans, mapp[ind][2] )
 
 def show_nth_index(ind,index_list,res,mapp,max_val,last=4):
     for rr in index_list[ind][1]:

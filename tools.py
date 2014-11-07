@@ -278,9 +278,9 @@ def get_dict():
 
 def get_hb_dict():
     hb_dict = {}
-    with open('emnlp_dict.txt', 'rb') as file:
+    with open(os.path.join(os.path.dirname(__file__),'emnlp_dict.txt'), 'rb') as file:
         for line in file:
-            line_splited = line.split("  ")
+            line_splited = line.split("\t")
             hb_dict[line_splited[0].strip()] = line_splited[1].strip()
     return hb_dict
 
