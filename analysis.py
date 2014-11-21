@@ -13,11 +13,7 @@ import logging
 import constants
 from extra import calc_score_matrix_wo_tag, calc_score_matrix_with_degree
 
-is_ill = lambda x,y,z : True if x != z else False
-is_oov = lambda x,y,z : True if y == 'OOV' else False
-spell = lambda x,y,z : not tools.spell_check(x)
-OOVFUNC = is_oov
-SLANG = tools.get_slangs()
+from settings import SLANG, threshold, slang_threshold, max_val, verbose, distance, database, OOVFUNC as oov_fun, wo_tag, with_degree, window_size
 
 # create file handler which logs even debug messages
 fh = logging.FileHandler('analysis.log')
@@ -182,7 +178,7 @@ def calculate_score(res_vec,max_val):
 def calc_each_neighbours_score(tweets_str, results, oov,tweets):
     lo_tweets = CMUTweetTagger.runtagger_parse(tweets_str)
     lo_candidates = []
-    norm = normalizer.Normalizer(lo_tweets,database='tweets')
+    norm = normalizer.Normalizer(lo_tweets)
     for i in range(0,len(results)):
         tweet = results[i]
         tweet_pos_tagged = CMUTweetTagger.runtagger_parse([tweets[i]])[0] # since only 1 tweet
@@ -231,7 +227,7 @@ def metaphone_match(results,oov):
 
 def contains(tweets,results,oov):
     lo_tweets = CMUTweetTagger.runtagger_parse(tweets)
-    N = normalizer.Normalizer(lo_tweets,database='tweets');
+    N = normalizer.Normalizer(lo_tweets);
     pos = 0
     pos_dict = {}
     lo_candidates = []
@@ -267,14 +263,14 @@ def check(results,oov,method):
             if oov(word[0],word[1]):
                 method(results,oov)
 
-def add_nom_verbs(fm,mapp,slang_threshold=1):
+def add_nom_verbs(fm,mapp):
     for ind,cands in enumerate(fm):
         oov = mapp[ind][0]
         oov_tag = mapp[ind][2]
-        add_nom_verbs_inner(oov,oov_tag,cands,slang_threshold)
+        add_nom_verbs_inner(oov,oov_tag,cands)
     return fm
 
-def add_nom_verbs_inner(oov,oov_tag,cands,slang_threshold):
+def add_nom_verbs_inner(oov,oov_tag,cands):
         if oov_tag == "L" :
             if oov.lower() == u"im":
                 cand = u"i'm"
@@ -306,9 +302,9 @@ def add_candidate(cands,cand,oov,oov_tag,slang_threshold):
 
 #--------------------------------------------------------------
 
-def calc_score_matrix(lo_postagged_tweets,results,oov_fun,window_size, database='tweets'):
+def calc_score_matrix(lo_postagged_tweets,results,oov_fun,window_size):
     lo_candidates = []
-    norm = normalizer.Normalizer(lo_postagged_tweets,database=database)
+    norm = normalizer.Normalizer(lo_postagged_tweets)
     norm.m = window_size/2
     for tweet_ind in range(0,len(lo_postagged_tweets)):
         tweet_pos_tagged = lo_postagged_tweets[tweet_ind]
@@ -339,14 +335,14 @@ def construct_mapp_penn(pos_tagged_penn, results_penn):
                 mapp_penn.append((word,cor,pos_tagged_penn[t_ind][w_ind][1]))
     return mapp_penn
 
-def calculate_score_penn(hyp_file,ref_file, oov_fun = OOVFUNC, threshold=1.5):
+def calculate_score_penn(hyp_file,ref_file):
     tweets_penn,results_penn = pennel(5000,hyp_file,ref_file)
     pos_tagged_penn = CMUTweetTagger.runtagger_parse(tweets_penn)
     window_size = 5
-    matrix_penn = calc_score_matrix(pos_tagged_penn, results_penn, oov_fun, window_size, database='tweets2')
+    matrix_penn = calc_score_matrix(pos_tagged_penn, results_penn, oov_fun, window_size)
     mapp_penn = construct_mapp_penn(pos_tagged_penn, results_penn)
     bos_oov_penn = ['' for word in mapp_penn ]
-    set_penn = run(matrix_penn,[],[],bos_oov_penn,results = results_penn, pos_tagged = pos_tagged_penn,oov_fun = oov_fun, threshold=threshold)
+    set_penn = run(matrix_penn,[],[],bos_oov_penn,results = results_penn, pos_tagged = pos_tagged_penn)
     return set_penn, mapp_penn, results_penn, pos_tagged_penn
 
 def construct_mapp(pos_tagged, results,oov_fun):
@@ -364,13 +360,13 @@ def test_detection(index,oov_fun):
     else:
         pos_tagged = constants.pos_tagged
         results = constants.results
-    matrix1 = calc_score_matrix(pos_tagged,results,oov_fun,7,database='tweets2')
+    matrix1 = calc_score_matrix(pos_tagged,results,oov_fun, window_size)
     mapp = construct_mapp(pos_tagged, results, oov_fun)
     all_oov =  ['' for word in mapp ]
-    set_oov_detect = run(matrix1,[],[],all_oov,results = results, pos_tagged = pos_tagged, oov_fun = oov_fun)
+    set_oov_detect = run(matrix1,[],[],all_oov,results = results, pos_tagged = pos_tagged)
     return set_oov_detect
 
-def show_results(res_mat,mapp, not_oov = [], max_val = [1., 1., 0.5, 0.0, 1.0, 0.5], verbose = False, threshold = 1.5):
+def show_results(res_mat,mapp, not_oov = []):
     results = []
     correct_answers = [] # True Positive
     incorrect_answers = [] # False Negative
@@ -425,32 +421,30 @@ def show_results(res_mat,mapp, not_oov = [], max_val = [1., 1., 0.5, 0.0, 1.0, 0
 
 
 def run(matrix1,fmd,feat_mat,not_oov,results = constants.results,
-        pos_tagged = constants.pos_tagged, threshold=1.5,slang_threshold=1,
-        max_val = [1., 1., 0.5, 0.0, 1.0, 0.5], verbose=False, distance = 2,
-        oov_fun = OOVFUNC, wo_tag=False, with_degree=False):
+        pos_tagged = constants.pos_tagged):
     mapp = construct_mapp(pos_tagged, results, oov_fun)
     if not_oov is None:
         bos_oov = [word[0] if word[0] == word[1] else '' for word in mapp ]
         not_oov = bos_oov
     if not matrix1:
         if with_degree:
-            matrix1 = calc_score_matrix_with_degree(pos_tagged,results,oov_fun,7,database='tweets2')
+            matrix1 = calc_score_matrix_with_degree(pos_tagged,results,oov_fun,window_size)
         elif not wo_tag:
-            matrix1 = calc_score_matrix(pos_tagged,results,oov_fun,7,database='tweets2')
+            matrix1 = calc_score_matrix(pos_tagged,results,oov_fun,window_size)
         else:
-            matrix1 = calc_score_matrix_wo_tag(pos_tagged,results,oov_fun,7,database='tweets2')
+            matrix1 = calc_score_matrix_wo_tag(pos_tagged,results,oov_fun,window_size)
     #max_val=[1.0, 1.0, 1.0, 1.0, 5.0, 1./1873142]
     fms = add_slangs(matrix1,SLANG)
     if not fmd:
         fmd = add_from_dict(fms,matrix1,distance,not_oov)
-    fm_reduced = add_nom_verbs(fmd,mapp,slang_threshold=slang_threshold)
+    fm_reduced = add_nom_verbs(fmd,mapp)
     if not feat_mat:
         feat_mat = iter_calc_lev(matrix1,fm_reduced,not_oov)
         #feat_mat2 = add_weight(feat_mat,mapp,not_oov)
-    res,ans,incor, fp, tn = show_results(feat_mat, mapp, not_oov = not_oov, max_val=max_val,threshold=threshold)
+    res,ans,incor, fp, tn = show_results(feat_mat, mapp, not_oov = not_oov)
     try:
         ann_and_pos_tag = tools.build_mappings(results,pos_tagged,oov_fun)
-        index_list,nil,no_res = tools.top_n(res,not_oov,mapp,ann_and_pos_tag,verbose=verbose)
+        index_list,nil,no_res = tools.top_n(res,not_oov,mapp,ann_and_pos_tag)
         num_of_normed_words = len(ans) + len(incor)
         num_of_words_req_norm = len(filter(lambda x: x[0] != x[1], mapp))
         #num_of_words_not_changed = len(filter(lambda x: x==1,[1 if ans and mapp[ind][1] != mapp[ind][0] and ans[0][0] == mapp[ind][0] else 0 for (ind,ans) in enumerate(res)]))
@@ -465,24 +459,20 @@ def run(matrix1,fmd,feat_mat,not_oov,results = constants.results,
         return [res, feat_mat, fmd, matrix1, ans, incor]
 
 def normalize(tweet):
-    distance = 2
-    slang_threshold = 1.5
-    threshold = 1.5
-    max_val = [1., 1., 0.5, 0.0, 1.0, 0.5]
     oov_fun = lambda x,y,z : not tools.spell_check(x)
     pos_tagged = CMUTweetTagger.runtagger_parse([tweet,])
-    matrix1 = calc_mat(results = pos_tagged, pos_tagged = pos_tagged, oov_fun = oov_fun)
+    matrix1 = calc_mat(results = pos_tagged, pos_tagged = pos_tagged)
     mapp = construct_mapp(pos_tagged, pos_tagged, oov_fun)
     fms = add_slangs(matrix1,SLANG)
     not_oov = ['' for word in mapp ]
     fmd = add_from_dict(fms,matrix1,distance,not_oov)
-    fm_reduced = add_nom_verbs(fmd,mapp,slang_threshold=slang_threshold)
+    fm_reduced = add_nom_verbs(fmd,mapp)
     feat_mat = iter_calc_lev(matrix1,fm_reduced,not_oov)
-    res = calculate_results(feat_mat, mapp, max_val=max_val,threshold=threshold)
+    res = calculate_results(feat_mat, mapp)
     return " ".join([res[word[0]] if res.has_key(word[0]) else word[0] for word in pos_tagged[0]])
 
 
-def calculate_results(res_mat,mapp, max_val = [1., 1., 0.5, 0.0, 1.0, 0.5], threshold = 1.5):
+def calculate_results(res_mat,mapp):
     results = {}
     for ind in range (0,len(res_mat)):
         oov = mapp[ind][0]
@@ -502,11 +492,9 @@ def calculate_results(res_mat,mapp, max_val = [1., 1., 0.5, 0.0, 1.0, 0.5], thre
     return results
 
 def run_old(matrix1,fmd,feat_mat,slang,not_oov,mapp,results = constants.results,
-        pos_tagged = constants.pos_tagged, threshold=1.5,slang_threshold=1,
-        max_val = [1., 1., 0.5, 0.0, 1.0, 0.5], verbose=False, distance = 2):
+        pos_tagged = constants.pos_tagged):
     if not matrix1:
-        window_size = 7
-        matrix1 = calc_score_matrix(pos_tagged,results,OOVFUNC,window_size,database='tweets2')
+        matrix1 = calc_score_matrix(pos_tagged, results, oov_fun, window_size)
     #max_val=[1.0, 1.0, 1.0, 1.0, 5.0, 1./1873142]
     if not slang:
         slang = tools.get_slangs()
@@ -515,14 +503,14 @@ def run_old(matrix1,fmd,feat_mat,slang,not_oov,mapp,results = constants.results,
     fms = add_slangs(matrix1,slang)
     if not fmd:
         fmd = add_from_dict(fms,matrix1,distance,not_oov)
-    fm_reduced = add_nom_verbs(fmd,mapp,slang_threshold=slang_threshold)
+    fm_reduced = add_nom_verbs(fmd,mapp)
     if not feat_mat:
         feat_mat = iter_calc_lev(matrix1, fm_reduced, not_oov)
         #feat_mat2 = add_weight(feat_mat,mapp,not_oov)
-    res,ans,incor, fp, tn = show_results(feat_mat, mapp, not_oov = not_oov, max_val=max_val,threshold=threshold)
+    res,ans,incor, fp, tn = show_results(feat_mat, mapp, not_oov = not_oov)
     try:
-        ann_and_pos_tag = tools.build_mappings(results,pos_tagged,OOVFUNC)
-        index_list,nil,no_res = tools.top_n(res,not_oov,mapp,ann_and_pos_tag,verbose=verbose)
+        ann_and_pos_tag = tools.build_mappings(results,pos_tagged,oov_fun)
+        index_list,nil,no_res = tools.top_n(res,not_oov,mapp,ann_and_pos_tag)
         tools.get_performance_old(len(ans),len(no_res),len(incor),len([oov for oov in not_oov if oov == '']))
         threshold = tools.get_score_threshold(index_list,res)
         tools.test_threshold(res,threshold)
