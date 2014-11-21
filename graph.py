@@ -13,8 +13,8 @@ M = MAX_DIS -1
 
     # NO TAG
 
-def get_candidates_scores_with_degree(tweet_pos_tagged,ovv,ovv_tag):
-    froms,tos = get_neighbours(tweet_pos_tagged,ovv)
+def get_candidates_scores_with_degree(tweet_pos_tagged,oov,oov_tag):
+    froms,tos = get_neighbours(tweet_pos_tagged,oov)
     keys = []
     score_matrix = []
     for ind,(word, tag, _) in enumerate(froms):
@@ -22,18 +22,18 @@ def get_candidates_scores_with_degree(tweet_pos_tagged,ovv,ovv_tag):
             neigh_node = word.strip()
             neigh_tag = tag
             distance = len(froms) - 1 - ind
-            cands_q = get_cands_with_degree(ovv_tag, 'to', 'from', neigh_node, neigh_tag, distance)
+            cands_q = get_cands_with_degree(oov_tag, 'to', 'from', neigh_node, neigh_tag, distance)
             keys,score_matrix = write_scores(neigh_node,neigh_tag,cands_q, keys, score_matrix)
     for ind,(word, tag, _) in enumerate(tos):
         if tag not in [',','@']:
             neigh_node = word.strip()
             neigh_tag = tag
             distance = ind
-            cands_q = get_cands_with_degree(ovv_tag, 'from', 'to', neigh_node, neigh_tag, distance)
+            cands_q = get_cands_with_degree(oov_tag, 'from', 'to', neigh_node, neigh_tag, distance)
             keys,score_matrix = write_scores(neigh_node,neigh_tag,cands_q,keys,score_matrix)
     return keys,score_matrix
 
-def get_cands_with_degree(ovv_tag, position, neigh_position, neigh_node, neigh_tag, distance):
+def get_cands_with_degree(oov_tag, position, neigh_position, neigh_node, neigh_tag, distance):
     try: # to limit all neighbours
         db_tweets.nodes.find_one({'node':neigh_node, 'tag': neigh_tag})['freq']
     except:
@@ -41,7 +41,7 @@ def get_cands_with_degree(ovv_tag, position, neigh_position, neigh_node, neigh_t
         return []
 
     candidates_q = db_tweets.edges.find({neigh_position:neigh_node, neigh_position+'_tag': neigh_tag,
-                    position+'_tag': ovv_tag,
+                    position+'_tag': oov_tag,
                     'dis': distance , 'weight' : { '$gt': 1 } })
     cands_q = []
     for node in candidates_q:
@@ -49,21 +49,21 @@ def get_cands_with_degree(ovv_tag, position, neigh_position, neigh_node, neigh_t
         if len(cand) < 2:
             continue
         # get frequencies of candidates
-        if ovv_tag == 'G':
+        if oov_tag == 'G':
             try:
                 cand_tag = db_tweets.nodes.find({'node':cand, 'ovv':False}).sort("freq", 1)[0]['tag']
                 degree = db_tweets.edges.find({position : cand, position+"tag" : cand_tag}).count()
             except IndexError:
                 return []
         else:
-            degree = db_tweets.edges.find({position : cand, position+"tag" : ovv_tag}).count()
+            degree = db_tweets.edges.find({position : cand, position+"tag" : oov_tag}).count()
         cands_q.append({'position': position, 'cand':cand, 'weight': node['weight'] ,
                 'freq' : degree})
     return cands_q
 
 
-def get_candidates_scores_wo_tag(tweet_pos_tagged,ovv):
-    froms,tos = get_neighbours(tweet_pos_tagged,ovv)
+def get_candidates_scores_wo_tag(tweet_pos_tagged,oov):
+    froms,tos = get_neighbours(tweet_pos_tagged,oov)
     keys = []
     score_matrix = []
     for ind,(word, tag, _) in enumerate(froms):
@@ -102,15 +102,22 @@ def get_graph_cands_wo_tag(position, neigh_position, neigh_node, distance):
         cands_q.append({'position': position, 'cand':cand, 'weight': node['weight'] , 'freq' : cand_node['freq']})
     return cands_q
 
-def get_neighbours(tweet_pos_tagged,ovv):
+def get_neighbours_by_string(tweet_pos_tagged,oov):
     froms = []
     tos = []
     for ind,(word, _ , _) in enumerate(tweet_pos_tagged):
-        if word == ovv:
+        if word == oov:
             froms = tweet_pos_tagged[max(ind-M,0):ind]
             tos = tweet_pos_tagged[ind+1:ind+1+M]
     return froms, tos
 
+def get_neighbours(tweet_pos_tagged,oov_index):
+    froms = []
+    tos = []
+    ind = oov_index
+    froms = tweet_pos_tagged[max(ind-M,0):ind]
+    tos = tweet_pos_tagged[ind+1:ind+1+M]
+    return froms, tos
 
 def write_scores(neigh,neigh_tag,cands_q,keys,score_matrix):
     for cand_q in cands_q:
