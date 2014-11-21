@@ -13,7 +13,7 @@ import logging
 import constants
 from extra import calc_score_matrix_wo_tag, calc_score_matrix_with_degree
 
-from settings import SLANG, threshold, slang_threshold, max_val, verbose, distance, database, OOVFUNC as oov_fun, wo_tag, with_degree, window_size
+from conf import SLANG, threshold, slang_threshold, max_val, verbose, distance, database, OOVFUNC as oov_fun, wo_tag, with_degree, window_size
 
 # create file handler which logs even debug messages
 fh = logging.FileHandler('analysis.log')
