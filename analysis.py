@@ -103,7 +103,7 @@ def get_candidates_from_graph(matrix_line,oov,oov_tag,cand_dict,edit_dis,met_dis
         if not cand_dict.has_key(cand):
             cand_dict[cand] = get_score_line(cand,sumof,oov,oov_tag)
         else:
-            cand_dict[cand][0] = sumof
+            cand_dict[cand][0] = round(sumof,7)
             #cand_dict[cand][0] += sumof
     return cand_dict
 
@@ -366,6 +366,23 @@ def test_detection(index,oov_fun):
     set_oov_detect = run(matrix1,[],[],all_oov,results = results, pos_tagged = pos_tagged)
     return set_oov_detect
 
+# res_dict = feat_mat[ind]
+def filter_and_sort_candidates(res_dict,oov):
+    res_list = []
+    if res_dict:
+        for res_ind,cand in enumerate(res_dict):
+            #if(not tools.spell_check(cand)): #or oov == cand): # spell check on graph is problematic
+            #    continue;
+            score = calculate_score(res_dict[cand],max_val)
+            if score >= threshold and cand != oov:
+                res_dict[cand].append(round(score,7))
+                res_line = [cand]
+                res_line.extend(res_dict[cand])
+                res_list.append(res_line)
+        res_list.sort(key=lambda x: -float(x[-1]))
+    return res_list
+
+
 def show_results(res_mat,mapp, not_oov = []):
     results = []
     correct_answers = [] # True Positive
@@ -381,18 +398,7 @@ def show_results(res_mat,mapp, not_oov = []):
             res_list = [[not_oov[ind],0,0,0,0,0,0]]
         else:
             res_dict = copy.deepcopy(res_mat[ind])
-            res_list = []
-            if res_dict:
-                for res_ind,cand in enumerate(res_dict):
-                    #if(not tools.spell_check(cand)): #or oov == cand): # spell check on graph is problematic
-                    #    continue;
-                    score = calculate_score(res_dict[cand],max_val)
-                    if score >= threshold and cand != oov:
-                        res_dict[cand].append(round(score,7))
-                        res_line = [cand]
-                        res_line.extend(res_dict[cand])
-                        res_list.append(res_line)
-                res_list.sort(key=lambda x: -float(x[-1]))
+            res_list = filter_and_sort_candidates(res_dict,oov)
         answer = res_list[0][0] if res_list else oov
         correct_answer = mapp[ind][1]
         if answer.lower() == correct_answer.lower():
