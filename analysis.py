@@ -103,8 +103,8 @@ def get_candidates_from_graph(matrix_line,oov,oov_tag,cand_dict,edit_dis,met_dis
         if not cand_dict.has_key(cand):
             cand_dict[cand] = get_score_line(cand,sumof,oov,oov_tag)
         else:
-            #cand_dict[cand][0] = round(sumof,7)
-            cand_dict[cand][0] += sumof
+            cand_dict[cand][0] = round(sumof,7)
+            #cand_dict[cand][0] += sumof
     return cand_dict
 
 def get_score_line(cand,sumof,oov,oov_tag):
@@ -304,7 +304,7 @@ def add_candidate(cands,cand,oov,oov_tag,slang_threshold):
 
 def calc_score_matrix(lo_postagged_tweets,results,oov_fun,window_size):
     lo_candidates = []
-    norm = normalizer.Normalizer(lo_postagged_tweets)
+    norm = normalizer.Normalizer(lo_postagged_tweets,database)
     norm.m = window_size/2
     for tweet_ind in range(0,len(lo_postagged_tweets)):
         tweet_pos_tagged = lo_postagged_tweets[tweet_ind]

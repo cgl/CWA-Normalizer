@@ -15,7 +15,7 @@ class Normalizer:
     # input is a list s.t.
 #lot = [[('example', 'N', 0.979), ('tweet', 'V', 0.7763), ('1', '$', 0.9916)],
 #       [('example', 'N', 0.979), ('tweet', 'V', 0.7713), ('2', '$', 0.5832)]]
-    def __init__(self, input, database='tweets',method='normalize'):
+    def __init__(self, input, database, method='normalize'):
         max_dis = 4  # n-gram
         self.method = method
         self.m = max_dis - 1
