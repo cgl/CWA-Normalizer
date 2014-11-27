@@ -389,6 +389,7 @@ def evaluate_alt(answer, correct_answer, oov, evaluation):
         else:
             if oov == correct_answer: # fp: people --> ppl
                 evaluation['incorrectly_corrected_word'].append(answer)
+                print(answer, correct_answer, oov)
             else:                     # fn: ppl --> apple
                 evaluation['incorrect_answers'].append(answer)
     else: # people --> people , ppl --> ppl

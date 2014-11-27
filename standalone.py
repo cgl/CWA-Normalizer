@@ -95,4 +95,4 @@ class Tweet:
 
     def __str__(self):
         for token in self.oov_tokens:
-            print(self.tokens[token[0]]+': '+token)
+            print(self.tokens[token[0]]+': '+str(token))
