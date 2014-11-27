@@ -1,6 +1,7 @@
 import normalizer
 from analysis import ext_contextual_candidates, add_slangs, add_from_dict, add_nom_verbs, iter_calc_lev,show_results, calculate_score, filter_and_sort_candidates
 from conf import SLANG, database, window_size, distance, max_val, OOVFUNC as oov_fun
+import pdb
 
 def norm_one(tweet, oov_index):
     oov = tweet[oov_index][0] # oov_tag = tweet[oov_index][1]
@@ -45,14 +46,16 @@ def construct_annotated(pos_tagged, results,oov_fun):
 # tweet:
 class Tweet:
     def __init__(self, tweet_annotated):
-        self.tokens = tweet_annotated
+        self.tokens = [] # tweet_annotated
         self.oov_tokens = [] # ind, tag, normalization
         for ind,token in enumerate(tweet_annotated):
             self.tokens.append(token[0:3])
             if token[-1] == 'OOV':
                 self.oov_tokens.append([ind,token[1]])
+        print('There are %s oov words in the tweet' %len(self.oov_tokens))
 
     def normalize(self):
-        for oov_ind,oov_tag in self.oov_tokens:
+        for oov_token in self.oov_tokens:
+            oov_ind = oov_token[0]
             _,cand_list = norm_one(self.tokens,oov_ind)
-            self.oov_tokens[oov_ind].append = cand_list[0][0]
+            oov_token.append(cand_list[0][0] if cand_list else self.tokens[oov_ind][0])
