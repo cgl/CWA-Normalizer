@@ -47,9 +47,11 @@ def construct_annotated(pos_tagged, results,oov_fun):
 class Tweet:
     def __init__(self, tweet_annotated):
         self.tokens = [] # tweet_annotated
+        self.normalization = [] # tweet_annotated
         self.oov_tokens = [] # ind, tag, normalization
         for ind,token in enumerate(tweet_annotated):
-            self.tokens.append(token[0:3])
+            self.tokens.append(token)
+            self.normalization.append(token[0:3])
             if token[-1] == 'OOV':
                 self.oov_tokens.append([ind,token[1]])
         print('There are %s oov words in the tweet' %len(self.oov_tokens))
@@ -57,5 +59,8 @@ class Tweet:
     def normalize(self):
         for oov_token in self.oov_tokens:
             oov_ind = oov_token[0]
-            _,cand_list = norm_one(self.tokens,oov_ind)
-            oov_token.append(cand_list[0][0] if cand_list else self.tokens[oov_ind][0])
+            _,cand_list = norm_one(self.normalization,oov_ind)
+            canonical = cand_list[0][0] if cand_list else None
+            oov_token.append(canonical)
+            if canonical:
+                self.normalization[oov_token[0]] = (oov_token[-1],self.tokens[oov_token[0]][1],self.tokens[oov_token[0]][2])
