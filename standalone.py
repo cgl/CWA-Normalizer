@@ -1,5 +1,5 @@
-import normalizer
-from analysis import ext_contextual_candidates, add_slangs, add_from_dict, add_nom_verbs, iter_calc_lev,show_results, calculate_score, filter_and_sort_candidates
+import normalizer,tools
+from analysis import ext_contextual_candidates, add_slangs, add_from_dict, add_nom_verbs, iter_calc_lev,show_results, calculate_score, filter_and_sort_candidates, evaluate_alt
 from conf import SLANG, database, window_size, distance, max_val, OOVFUNC as oov_fun
 import pdb
 
@@ -26,11 +26,19 @@ def calculate_score_all_cands(feat_mat):
 
 def norm_all(tweets_annotated):
     lo_tweets = []
-    for tweet in tweets_annotated:
+    evaluations = {'correct_answers':[], 'incorrect_answers':[], 'num_of_words_req_norm':0,
+                   'incorrectly_corrected_word' : [], 'correctly_unchanged' : [] }
+    for ind,tweet in enumerate(tweets_annotated):
+        print(ind)
         tweet_obj = Tweet(tweet)
         tweet_obj.normalize()
+        tweet_obj.evaluate(evaluations)
         lo_tweets.append(tweet_obj)
-    return lo_tweets
+    ans = evaluations['correct_answers']
+    incor = evaluations['incorrect_answers']
+    fp = evaluations['incorrectly_corrected_word']
+    tools.get_performance(len(ans),len(incor),len(fp),evaluations['num_of_words_req_norm'])
+    return lo_tweets,evaluations
 
 # standalone.construct_annotated(constants.pos_tagged, constants.results, conf.ovv_fun_20_filtered_extended)
 def construct_annotated(pos_tagged, results,oov_fun):
@@ -46,21 +54,41 @@ def construct_annotated(pos_tagged, results,oov_fun):
 # tweet:
 class Tweet:
     def __init__(self, tweet_annotated):
-        self.tokens = [] # tweet_annotated
+        self.num_of_words_req_norm = 0
+        self.tokens = [] # tweet_annotated [[0:oov,1:tag,2:canonical,3:'OOV'/'IV'],..]
         self.normalization = [] # tweet_annotated
-        self.oov_tokens = [] # ind, tag, normalization
+        self.oov_tokens = [] # [ind, tag, normalization]
         for ind,token in enumerate(tweet_annotated):
             self.tokens.append(token)
             self.normalization.append(token[0:3])
             if token[-1] == 'OOV':
                 self.oov_tokens.append([ind,token[1]])
+            if token[0] != token[2]:
+                self.num_of_words_req_norm += 1
         print('There are %s oov words in the tweet' %len(self.oov_tokens))
 
     def normalize(self):
         for oov_token in self.oov_tokens:
             oov_ind = oov_token[0]
             _,cand_list = norm_one(self.normalization,oov_ind)
-            canonical = cand_list[0][0] if cand_list else None
-            oov_token.append(canonical)
-            if canonical:
-                self.normalization[oov_token[0]] = (oov_token[-1],self.tokens[oov_token[0]][1],self.tokens[oov_token[0]][2])
+            best_cand = cand_list[0][0] if cand_list else None
+            oov_token.append(best_cand)
+            if best_cand:
+                self.normalization[oov_token[0]] = (best_cand,self.tokens[oov_token[0]][1],self.tokens[oov_token[0]][2])
+
+    def evaluate(self,evaluations):
+        self.evaluation = {}
+        self.evaluation['correct_answers'] = []            # True Positive
+        self.evaluation['incorrect_answers'] =  []         # False Negative
+        self.evaluation['incorrectly_corrected_word'] = [] # False Positive
+        self.evaluation['correctly_unchanged'] = []        # True Negative
+        for oov_token in self.oov_tokens:
+            correct_answer = self.tokens[oov_token[0]][2] # canonical
+            oov = self.tokens[oov_token[0]][0]
+            answer = oov_token[-1] or oov #best_cand
+            evaluate_alt(answer, correct_answer, oov, self.evaluation)
+        evaluations['correct_answers'].extend(self.evaluation['correct_answers'])
+        evaluations['incorrect_answers'].extend(self.evaluation['incorrect_answers'])
+        evaluations['incorrectly_corrected_word'].extend(self.evaluation['incorrectly_corrected_word'])
+        evaluations['correctly_unchanged'].extend(self.evaluation['correctly_unchanged'])
+        evaluations['num_of_words_req_norm'] =+ self.num_of_words_req_norm

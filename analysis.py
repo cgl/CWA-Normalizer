@@ -382,10 +382,23 @@ def filter_and_sort_candidates(res_dict,oov):
         res_list.sort(key=lambda x: -float(x[-1]))
     return res_list
 
+def evaluate_alt(answer, correct_answer, oov, evaluation):
+    if answer != oov: # ppl --> people , people --> ppl, ppl --> apple
+        if answer.lower() == correct_answer.lower() : # tp: ppl --> people
+            evaluation['correct_answers'].append(answer)
+        else:
+            if oov == correct_answer: # fp: people --> ppl
+                evaluation['incorrectly_corrected_word'].append(answer)
+            else:                     # fn: ppl --> apple
+                evaluation['incorrect_answers'].append(answer)
+    else: # people --> people , ppl --> ppl
+        if oov != correct_answer: # fn: ppl  --> ppl
+            pass #incorrect_answers.append((ind,answer))
+        else:                     # tn: people --> people
+            evaluation['correctly_unchanged'].append(answer)
+
 def evaluate(answer, correct_answer, oov,correct_answers, ind, incorrect_answers,
-             incorrectly_corrected_word, total_pos, correctly_unchanged):
-    if answer.lower() == correct_answer.lower():
-        total_pos += 1
+             incorrectly_corrected_word, correctly_unchanged):
     if answer != oov: # ppl --> people , people --> ppl, ppl --> apple
         if answer.lower() == correct_answer.lower() : # tp: ppl --> people
             correct_answers.append((ind,answer))
@@ -406,7 +419,6 @@ def show_results(res_mat,mapp, not_oov = []):
     correct_answers = [] # True Positive
     incorrect_answers = [] # False Negative
     miss = []
-    total_pos = 0
     incorrectly_corrected_word = [] # False Positive
     correctly_unchanged = [] # True Negative
     for ind in range (0,len(res_mat)):
@@ -420,10 +432,9 @@ def show_results(res_mat,mapp, not_oov = []):
         answer = res_list[0][0] if res_list else oov
         correct_answer = mapp[ind][1]
         evaluate(answer, correct_answer, oov,correct_answers, ind, incorrect_answers,
-                 incorrectly_corrected_word, total_pos, correctly_unchanged)
-    print 'Number of correct normalizations %s, incorrect norms %s, changed correct token %s, total correct token ratio %s/%s' % (
-        len(correct_answers),len(incorrect_answers),len(incorrectly_corrected_word),
-        total_pos,len(mapp))
+                 incorrectly_corrected_word, correctly_unchanged)
+    print '# of correct normalizations %s, incorrect norms %s, changed correct token %s' % (
+        len(correct_answers),len(incorrect_answers),len(incorrectly_corrected_word))
     return results,correct_answers,incorrect_answers, incorrectly_corrected_word, correctly_unchanged
 
 def run(matrix1,fmd,feat_mat,not_oov,results = constants.results,
