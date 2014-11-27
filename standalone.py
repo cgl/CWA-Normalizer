@@ -24,14 +24,11 @@ def calculate_score_all_cands(feat_mat):
         score = calculate_score(feat_mat[0][cand], max_val)
         feat_mat[0][cand].append(round(score,7))
 
-def norm_all(tweets_annotated):
-    lo_tweets = []
-    evaluations = {'correct_answers':[], 'incorrect_answers':[], 'num_of_words_req_norm':0,
-                   'incorrectly_corrected_word' : [], 'correctly_unchanged' : [] }
+def norm_all(tweets_annotated,order,lo_tweets = [], evaluations = {'correct_answers':[], 'incorrect_answers':[], 'num_of_words_req_norm':0,'incorrectly_corrected_word' : [], 'correctly_unchanged' : [] }):
     for ind,tweet in enumerate(tweets_annotated):
         print(ind)
         tweet_obj = Tweet(tweet)
-        tweet_obj.normalize()
+        tweet_obj.normalize(order)
         tweet_obj.evaluate(evaluations)
         lo_tweets.append(tweet_obj)
     ans = evaluations['correct_answers']
@@ -67,13 +64,13 @@ class Tweet:
                 self.num_of_words_req_norm += 1
         print('There are %s oov words in the tweet' %len(self.oov_tokens))
 
-    def normalize(self):
+    def normalize(self,order):
         for oov_token in self.oov_tokens:
             oov_ind = oov_token[0]
             _,cand_list = norm_one(self.normalization,oov_ind)
             best_cand = cand_list[0][0] if cand_list else None
             oov_token.append(best_cand)
-            if best_cand:
+            if order and best_cand:
                 self.normalization[oov_token[0]] = (best_cand,self.tokens[oov_token[0]][1],self.tokens[oov_token[0]][2])
 
     def evaluate(self,evaluations):
@@ -91,4 +88,4 @@ class Tweet:
         evaluations['incorrect_answers'].extend(self.evaluation['incorrect_answers'])
         evaluations['incorrectly_corrected_word'].extend(self.evaluation['incorrectly_corrected_word'])
         evaluations['correctly_unchanged'].extend(self.evaluation['correctly_unchanged'])
-        evaluations['num_of_words_req_norm'] =+ self.num_of_words_req_norm
+        evaluations['num_of_words_req_norm'] += self.num_of_words_req_norm
