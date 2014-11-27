@@ -382,6 +382,24 @@ def filter_and_sort_candidates(res_dict,oov):
         res_list.sort(key=lambda x: -float(x[-1]))
     return res_list
 
+def evaluate(answer,correct_answer,correct_answers,incorrect_answers,incorrectly_corrected_word,total_pos):
+        if answer.lower() == correct_answer.lower():
+            total_pos += 1
+        if answer != oov: # ppl --> people , people --> ppl, ppl --> apple
+            if answer.lower() == correct_answer.lower() : # tp: ppl --> people
+                correct = True
+                correct_answers.append((ind,answer))
+            else:
+                if oov == correct_answer: # fp: people --> ppl
+                    incorrectly_corrected_word.append((ind,answer))
+                else:                     # fn: ppl --> apple
+                    incorrect_answers.append((ind,answer))
+        else: # people --> people , ppl --> ppl
+            if oov != correct_answer: # fn: ppl  --> ppl
+                pass #incorrect_answers.append((ind,answer))
+            else:                     # tn: people --> people
+                correctly_unchanged.append((ind,answer))
+
 
 def show_results(res_mat,mapp, not_oov = []):
     results = []
@@ -399,32 +417,16 @@ def show_results(res_mat,mapp, not_oov = []):
         else:
             res_dict = copy.deepcopy(res_mat[ind])
             res_list = filter_and_sort_candidates(res_dict,oov)
+        results.append(res_list)
         answer = res_list[0][0] if res_list else oov
         correct_answer = mapp[ind][1]
-        if answer.lower() == correct_answer.lower():
-            total_pos += 1
-        if answer != oov: # ppl --> people , people --> ppl, ppl --> apple
-            if answer.lower() == correct_answer.lower() : # tp: ppl --> people
-                correct = True
-                correct_answers.append((ind,answer))
-            else:
-                if oov == correct_answer: # fp: people --> ppl
-                    incorrectly_corrected_word.append((ind,answer))
-                else:                     # fn: ppl --> apple
-                    incorrect_answers.append((ind,answer))
-        else: # people --> people , ppl --> ppl
-            if oov != correct_answer: # fn: ppl  --> ppl
-                pass #incorrect_answers.append((ind,answer))
-
-            else:                     # tn: people --> people
-                correctly_unchanged.append((ind,answer))
+        evaluate(answer,correct_answer,correct_answers,incorrect_answers,incorrectly_corrected_word,total_pos)
         if verbose:
             print '%d. %s | %s [%s] :%s' % (ind, 'Found' if correct else '', mapp[ind][0],mapp[ind][1],res_list[0][0])
-        results.append(res_list)
     print 'Number of correct normalizations %s, incorrect normalizations %s, changed correct token %s, total correct token ratio %s/%s' % (
-        len(correct_answers),len(incorrect_answers),len(incorrectly_corrected_word),total_pos,len(mapp))
+            len(correct_answers),len(incorrect_answers),len(incorrectly_corrected_word),
+            total_pos,len(mapp))
     return results,correct_answers,incorrect_answers, incorrectly_corrected_word, correctly_unchanged
-
 
 def run(matrix1,fmd,feat_mat,not_oov,results = constants.results,
         pos_tagged = constants.pos_tagged):
