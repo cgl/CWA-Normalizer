@@ -86,6 +86,7 @@ class Tweet:
             correct_answer = self.tokens[oov_token[0]][2] # canonical
             oov = self.tokens[oov_token[0]][0]
             answer = oov_token[-1] or oov #best_cand
+            print(answer, correct_answer, oov,oov_token[-1])
             evaluate_alt(answer, correct_answer, oov, self.evaluation)
         evaluations['correct_answers'].extend(self.evaluation['correct_answers'])
         evaluations['incorrect_answers'].extend(self.evaluation['incorrect_answers'])
@@ -95,4 +96,4 @@ class Tweet:
 
     def __str__(self):
         for token in self.oov_tokens:
-            print(self.tokens[token[0]]+': '+str(token))
+            print(self.tokens[token[0]][0]+': '+str(token))
