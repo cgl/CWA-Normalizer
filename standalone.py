@@ -16,7 +16,7 @@ def norm_one(tweet, oov_index):
     feat_mat = iter_calc_lev([contextual_candidates],fm_reduced,not_oov)
     res_dict = feat_mat[0]
     score_mat = filter_and_sort_candidates(res_dict,oov)
-    return feat_mat,score_mat
+    return (feat_mat,contextual_candidates,fms,fmd),score_mat
 
 
 def calculate_score_all_cands(feat_mat):
