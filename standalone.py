@@ -24,7 +24,10 @@ def calculate_score_all_cands(feat_mat):
         score = calculate_score(feat_mat[0][cand], max_val)
         feat_mat[0][cand].append(round(score,7))
 
-def norm_all(tweets_annotated,order,lo_tweets = [], evaluations = {'correct_answers':[], 'incorrect_answers':[], 'num_of_words_req_norm':0,'incorrectly_corrected_word' : [], 'correctly_unchanged' : [] }):
+def norm_all(tweets_annotated,order):
+    lo_tweets = []
+    evaluations = {'correct_answers':[], 'incorrect_answers':[], 'num_of_words_req_norm':0,
+                   'incorrectly_corrected_word' : [], 'correctly_unchanged' : [] }
     for ind,tweet in enumerate(tweets_annotated):
         print(ind)
         tweet_obj = Tweet(tweet)
@@ -89,3 +92,7 @@ class Tweet:
         evaluations['incorrectly_corrected_word'].extend(self.evaluation['incorrectly_corrected_word'])
         evaluations['correctly_unchanged'].extend(self.evaluation['correctly_unchanged'])
         evaluations['num_of_words_req_norm'] += self.num_of_words_req_norm
+
+    def __str__(self):
+        for token in self.oov_tokens:
+            print(self.tokens[token[0]]+': '+token)
