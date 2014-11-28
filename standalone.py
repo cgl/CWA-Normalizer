@@ -2,6 +2,7 @@ import normalizer,tools
 from analysis import ext_contextual_candidates, add_slangs, add_from_dict, add_nom_verbs, iter_calc_lev,show_results, calculate_score, filter_and_sort_candidates, evaluate_alt
 from conf import SLANG, database, window_size, distance, max_val, OOVFUNC as oov_fun
 import pdb
+from Oov_token import Oov_token
 
 def norm_one(tweet, oov_index):
     oov = tweet[oov_index][0] # oov_tag = tweet[oov_index][1]
@@ -57,37 +58,38 @@ class Tweet:
     def __init__(self, tweet_annotated):
         self.num_of_words_req_norm = 0
         self.tokens = [] # tweet_annotated [[0:oov,1:tag,2:canonical,3:'OOV'/'IV'],..]
-        self.normalization = [] # tweet_annotated
-        self.oov_tokens = [] # [ind, tag, normalization]
+        self.normalization = [] # tweet_annotated: [0:oov/answer,1:tag,2:canonical]
+        self.oov_tokens = []
+        self.evaluation = {}
         for ind,token in enumerate(tweet_annotated):
             self.tokens.append(token)
             self.normalization.append(token[0:3])
             if token[-1] == 'OOV':
-                self.oov_tokens.append([ind,token[1]])
+                oov_token = Oov_token(token[0],ind,token[1],self)
+                self.oov_tokens.append(oov_token)
             if token[0] != token[2]:
                 self.num_of_words_req_norm += 1
         print('There are %s oov words in the tweet' %len(self.oov_tokens))
 
     def normalize(self,order):
         for oov_token in self.oov_tokens:
-            oov_ind = oov_token[0]
-            _,cand_list = norm_one(self.normalization,oov_ind)
-            best_cand = cand_list[0][0] if cand_list else None
-            oov_token.append(best_cand)
-            if order and best_cand:
-                self.normalization[oov_token[0]] = (best_cand,self.tokens[oov_token[0]][1],self.tokens[oov_token[0]][2])
+#            _,cand_list = norm_one(self.normalization,oov_ind)
+            oov_token.norm_one()
+            if order and oov_token.answer: #update normalized oov to answer
+                self.normalization[oov_token.oov_ind] = (oov_token.answer,
+                                                         self.normalization[oov_token.oov_ind][1],
+                                                         self.normalization[oov_token.oov_ind][2])
 
     def evaluate(self,evaluations):
-        self.evaluation = {}
         self.evaluation['correct_answers'] = []            # True Positive
         self.evaluation['incorrect_answers'] =  []         # False Negative
         self.evaluation['incorrectly_corrected_word'] = [] # False Positive
         self.evaluation['correctly_unchanged'] = []        # True Negative
         for oov_token in self.oov_tokens:
-            correct_answer = self.tokens[oov_token[0]][2] # canonical
-            oov = self.tokens[oov_token[0]][0]
-            answer = oov_token[-1] or oov #best_cand
-            print(answer, correct_answer, oov,oov_token[-1])
+            correct_answer = self.tokens[oov_token.oov_ind][2] # canonical
+            oov = self.tokens[oov_token.oov_ind][0]
+            answer = oov_token.answer or oov
+            print(answer, ' | ' ,oov_token.answer,correct_answer, oov)
             evaluate_alt(answer, correct_answer, oov, self.evaluation)
         evaluations['correct_answers'].extend(self.evaluation['correct_answers'])
         evaluations['incorrect_answers'].extend(self.evaluation['incorrect_answers'])
@@ -96,5 +98,7 @@ class Tweet:
         evaluations['num_of_words_req_norm'] += self.num_of_words_req_norm
 
     def __str__(self):
-        for token in self.oov_tokens:
-            print(self.tokens[token[0]][0]+': '+str(token))
+        rep = ''
+        for oov_token in self.oov_tokens:
+            rep += '%s\t: %s \n' %(oov_token.oov,oov_token.answer or '-')
+        return rep
