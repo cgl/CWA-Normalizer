@@ -9,8 +9,9 @@ def norm_one(tweet, oov_index):
     norm.m = window_size/2
     contextual_candidates = ext_contextual_candidates(tweet,oov_index,norm)
     fms = add_slangs([contextual_candidates],SLANG)
+    print(fms)
     mapp = [[oov,None,tweet[oov_index][1]]]
-    not_oov = ['' for _ in mapp ]  # bos_oov
+    not_oov = ['' for a in mapp ]  # bos_oov
     fmd = add_from_dict(fms,[contextual_candidates],distance,not_oov)
     fm_reduced = add_nom_verbs(fmd,mapp)
     feat_mat = iter_calc_lev([contextual_candidates],fm_reduced,not_oov)
