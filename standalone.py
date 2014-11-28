@@ -10,7 +10,6 @@ def norm_one(tweet, oov_index):
     norm.m = window_size/2
     contextual_candidates = ext_contextual_candidates(tweet,oov_index,norm)
     fms = add_slangs([contextual_candidates],SLANG)
-    print(fms)
     mapp = [[oov,None,tweet[oov_index][1]]]
     not_oov = ['' for a in mapp ]  # bos_oov
     fmd = add_from_dict(fms,[contextual_candidates],distance,not_oov)
@@ -89,7 +88,6 @@ class Tweet:
             correct_answer = self.tokens[oov_token.oov_ind][2] # canonical
             oov = self.tokens[oov_token.oov_ind][0]
             answer = oov_token.answer or oov
-            print(answer, ' | ' ,oov_token.answer,correct_answer, oov)
             evaluate_alt(answer, correct_answer, oov, self.evaluation)
         evaluations['correct_answers'].extend(self.evaluation['correct_answers'])
         evaluations['incorrect_answers'].extend(self.evaluation['incorrect_answers'])

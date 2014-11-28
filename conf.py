@@ -13,7 +13,7 @@ distance = 2
 
 database='tweets2'
 
-OOVFUNC = is_oov
+OOVFUNC = is_ill
 wo_tag=False
 with_degree=False
 window_size = 7
