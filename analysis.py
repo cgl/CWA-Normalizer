@@ -13,7 +13,7 @@ import logging
 import constants
 from extra import calc_score_matrix_wo_tag, calc_score_matrix_with_degree
 
-from conf import SLANG, threshold, slang_threshold, max_val, verbose, distance, database, OOVFUNC as oov_fun, wo_tag, with_degree, window_size
+from conf import SLANG, threshold, slang_threshold, max_val, verbose, distance, database, OOVFUNC as oov_fun, wo_tag, with_degree, window_size, clean_words, met_map
 
 # create file handler which logs even debug messages
 fh = logging.FileHandler('analysis.log')
@@ -67,14 +67,13 @@ def detect_oov(slang,mapp):
 
 
 def add_from_dict(fm, mat, distance, not_oov):
-    clean_words = tools.get_clean_words()
     for ind,cands in enumerate(fm):
         if not not_oov[ind]:
-            cands = find_more_results(mat[ind][0][0],mat[ind][0][1],cands,clean_words,distance)
+            cands = find_more_results(mat[ind][0][0],mat[ind][0][1],cands,distance)
     return fm
 
-def find_more_results(oov,oov_tag,cand_dict,clean_words,distance,give_suggestions=True):
-    cands = tools.get_from_dict_met(oov,{})
+def find_more_results(oov,oov_tag,cand_dict,distance,give_suggestions=True):
+    cands = tools.get_from_dict_met(oov,met_map)
     cands_more = tools.get_from_dict_dis(oov,oov_tag,clean_words,distance)
     cands.extend(cands_more)
     cands = list(set(cands))

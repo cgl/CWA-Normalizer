@@ -28,3 +28,6 @@ mydict60 = tools.db_tweets.nodes.find({'freq' : {"$gt": 60}}).distinct("node")
 mydict60_filtered = filter(tools.spell_check,mydict60)
 
 ovv_fun_60_filtered_extended = lambda x,y,z: not (x in mydict60_filtered) if tools.isvalid(x) and not tools.isHashtag(x) and not tools.isMention(x) else False
+
+clean_words = tools.get_clean_words()
+met_map = {}
