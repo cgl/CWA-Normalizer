@@ -22,9 +22,10 @@ class Normalizer:
         self.texts = input
         self.d = enchant.Dict("en_US")
         client = MongoClient('localhost', 27017)
-        db = client[database]
-        self.nodes = db['nodes']
-        self.edges = db['edges']
+        self.db = client[database]
+        self.nodes = self.db['nodes']
+        self.edges = self.db['edges']
+        self.db.close()
         self.ovvLists = [[ind for ind, t in enumerate(text)
                           if self.isOvv(t[0], t[1])] for text in self.texts]
     def isOvvStr(self, w, t):
@@ -127,6 +128,7 @@ class Normalizer:
             if(cand_node):
                 cands_q.append({'position': position, 'cand':cand, 'weight': node['weight'] ,
                                 'freq' : cand_node['freq']})
+        self.db.close()
         return cands_q
 
 #-------------------------------------------------------
