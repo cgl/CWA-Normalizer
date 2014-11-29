@@ -77,12 +77,11 @@ class Tweet:
 
     def normalize(self,order):
         for oov_token in self.oov_tokens:
-#            _,cand_list = norm_one(self.normalization,oov_ind)
             oov_token.norm_one()
             if order and oov_token.answer: #update normalized oov to answer
                 self.normalization[oov_token.oov_ind] = (oov_token.answer,
-                                                         self.normalization[oov_token.oov_ind][1],
-                                                         self.normalization[oov_token.oov_ind][2])
+                                            self.normalization[oov_token.oov_ind][1],
+                                            self.normalization[oov_token.oov_ind][2])
 
     def evaluate(self,evaluations):
         self.evaluation['correct_answers'] = []            # True Positive
@@ -90,7 +89,7 @@ class Tweet:
         self.evaluation['incorrectly_corrected_word'] = [] # False Positive
         self.evaluation['correctly_unchanged'] = []        # True Negative
         for oov_token in self.oov_tokens:
-            correct_answer = self.tokens[oov_token.oov_ind][2] # canonical
+            correct_answer = oov_token.canonical
             oov = self.tokens[oov_token.oov_ind][0]
             answer = oov_token.answer or oov
             evaluate_alt(answer, correct_answer, oov, self.evaluation)

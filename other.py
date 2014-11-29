@@ -151,3 +151,51 @@ def test_detection(index,oov_fun):
     all_oov =  ['' for word in mapp ]
     set_oov_detect = run(matrix1,[],[],all_oov,results = results, pos_tagged = pos_tagged)
     return set_oov_detect
+
+def calculate_results(res_mat,mapp):
+    results = {}
+    for ind in range (0,len(res_mat)):
+        oov = mapp[ind][0]
+        res_dict = res_mat[ind]
+        res_list = []
+        if res_dict:
+            for res_ind,cand in enumerate(res_dict):
+                score = calculate_score(res_dict[cand],max_val)
+                if score >= threshold:
+                    res_dict[cand].append(round(score,7))
+                    res_line = [cand]
+                    res_line.extend(res_dict[cand])
+                    res_list.append(res_line)
+            res_list.sort(key=lambda x: -float(x[-1]))
+        answer = res_list[0][0] if res_list else oov
+        results[oov] = answer
+    return results
+
+def run_old(matrix1,fmd,feat_mat,slang,not_oov,mapp,results = han.RESULTS,
+        pos_tagged = han.POS_TAGGED):
+    if not matrix1:
+        matrix1 = calc_score_matrix(pos_tagged, results, oov_fun, window_size)
+    #max_val=[1.0, 1.0, 1.0, 1.0, 5.0, 1./1873142]
+    if not slang:
+        slang = tools.get_slangs()
+    if not not_oov:
+        not_oov = [word[0] if word[0] == word[1] else '' for word in mapp ]
+    fms = add_slangs(matrix1,slang)
+    if not fmd:
+        fmd = add_from_dict(fms,matrix1,distance,not_oov)
+    fm_reduced = add_nom_verbs(fmd,mapp)
+    if not feat_mat:
+        feat_mat = iter_calc_lev(matrix1, fm_reduced, not_oov)
+        #feat_mat2 = add_weight(feat_mat,mapp,not_oov)
+    res,ans,incor, fp, tn = show_results(feat_mat, mapp, not_oov = not_oov)
+    try:
+        ann_and_pos_tag = tools.build_mappings(results,pos_tagged,oov_fun)
+        index_list,nil,no_res = tools.top_n(res,not_oov,mapp,ann_and_pos_tag)
+        tools.get_performance_old(len(ans),len(no_res),len(incor),len([oov for oov in not_oov if oov == '']))
+        threshold = tools.get_score_threshold(index_list,res)
+        tools.test_threshold(res,threshold)
+        return [res, feat_mat, fmd, matrix1, ans, incor, nil, no_res, index_list]
+        #        0   1         2    3        4    5      6    7       8
+    except:
+        print(traceback.format_exc())
+        return [res, feat_mat, fmd, matrix1, ans, incor]

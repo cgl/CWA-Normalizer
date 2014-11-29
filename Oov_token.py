@@ -25,7 +25,7 @@ class Oov_token:
         tweet = self.tweet.normalization
         self.contextual_candidates = ext_contextual_candidates(tweet,self.oov_ind,self.norm)
         self.fms = add_slangs([self.contextual_candidates],SLANG)
-        self.mapp = [[self.oov,None,tweet[self.oov_ind][1]]]
+        self.mapp = [[self.oov,None,self.oov_tag]]
         self.not_oov = ['' for a in self.mapp ]  # bos_oov
         self.fmd = add_from_dict(self.fms, [self.contextual_candidates],distance,self.not_oov)
         self.fm_reduced = add_nom_verbs(self.fmd,self.mapp)

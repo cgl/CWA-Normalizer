@@ -381,7 +381,7 @@ def get_performance(correct,incorrect,fp,num_of_words_req_norm):
     precision = float(correct)/total_normalized_words
     fmeasure = 2 * precision * recall / (precision+recall)
     print "Correct: %d , Incorrect: %d , Total Norm: %d, Req Norm: %d" %(correct, incorrect, total_normalized_words, num_of_words_req_norm)
-    print "Recall: %f , Precision:%f , FMeasure:%f" %(round(recall,3),round(precision,3),round(fmeasure,3))
+    print "Precision:%f , Recall: %f , FMeasure:%f" %(round(precision,4),round(recall,4),round(fmeasure,4))
 
 def get_performance_old(correct,not_found,incorrect,total_not_ill):
     recall = float(correct)/total_not_ill
