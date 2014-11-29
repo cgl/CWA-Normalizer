@@ -42,7 +42,7 @@ class Oov_token:
                                                                         self.answer)
 
     def __details__(self):
-        print('%-15s %2s %2.2s %-15s %5d %4d %3d %-15s' %('Oov','Tag','Index','Answer','Cont. Cands',
+        print('%-15s %2s %2.2s %-15s %5s %4d %3s %-15s' %('Oov','Tag','Index','Answer','Cont. Cands',
                                                        'Lexical Cands','Filt Cands','Canonical'))
         print('%-15s %2s %2.2d %-15s %5d %4d %3d %-15s' %(self.oov,self.oov_tag,
                             self.oov_ind, self.answer or '-',
