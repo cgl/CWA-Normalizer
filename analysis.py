@@ -130,23 +130,6 @@ def calculate_score(res_vec,max_val):
         print res_vec
         print traceback.format_exc()
 
-# tweets, results = han(548)
-def calc_each_neighbours_score(tweets_str, results, oov,tweets):
-    lo_tweets = CMUTweetTagger.runtagger_parse(tweets_str)
-    lo_candidates = []
-    norm = normalizer.Normalizer(lo_tweets)
-    for i in range(0,len(results)):
-        tweet = results[i]
-        tweet_pos_tagged = CMUTweetTagger.runtagger_parse([tweets[i]])[0] # since only 1 tweet
-        for j in range(0,len(tweet)):
-            word = tweet[j]
-            if oov(word[0],word[1]):
-                oov_word = word[0]
-                oov_tag = tweet_pos_tagged[j][1]
-                candidates = norm.get_neighbours_candidates(tweet_pos_tagged,oov_word,oov_tag)
-                lo_candidates.append({'oov_word' : oov_word , 'tag' : oov_tag , 'cands' : candidates})
-    return lo_candidates
-
 def add_nom_verbs(fm,mapp):
     for ind,cands in enumerate(fm):
         oov = mapp[ind][0]
