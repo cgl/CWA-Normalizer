@@ -17,22 +17,22 @@ ANNOTATED01 = standalone.construct_annotated(penn.POS_TAGGED[0:1], penn.RESULTS[
 # unord549 = snippets.un_ordered(0,549)
 
 def all_ordered():
-    return all_un_ordered(ordered=True)
+    return all_un_ordered(is_ordered=True)
 
-def all_un_ordered(ordered=False):
+def all_un_ordered(is_ordered=False):
     start = time.time()
-    lo_tweets,e = standalone.norm_all(ANNOTATED,ordered)
+    lo_tweets,evl = standalone.norm_all(ANNOTATED,is_ordered)
     end = time.time()
     print("Time: %d" %(end - start))
-    return lo_tweets,e
+    return lo_tweets,evl
 
 def ordered(i,j):
-    lo_tweets,e = standalone.norm_all(ANNOTATED[i:j],True)
-    return lo_tweets,e
+    lo_tweets,evl = standalone.norm_all(ANNOTATED[i:j],True)
+    return lo_tweets,evl
 
 def un_ordered(i,j):
-    lo_tweets,e = standalone.norm_all(ANNOTATED[i:j],False)
-    return lo_tweets,e
+    lo_tweets,evl = standalone.norm_all(ANNOTATED[i:j],False)
+    return lo_tweets,evl
 
 def run(i,j):
     start = time.time()
@@ -61,11 +61,11 @@ def oov_statistics(lo_tweets):
 # Lists the frequencies of the tags in the lo_tweets given
 def tag_statistics(lo_tweets):
     corrects = {'N':0, 'V':0, 'A':0, '!':0, 'P':0, 'G':0, 'L':0, '^':0, 'D':0, '$':0, 'T':0,
-                '&':0, ',':0, 'R':0, 'X':0, '~':0, 'O':0, 'Z':0}
+                '&':0, ',':0, 'R':0, 'X':0, '~':0, 'O':0, 'Z':0, 'E':0}
     incorrects = {'N':0, 'V':0, 'A':0, '!':0, 'P':0, 'G':0, 'L':0, '^':0, 'D':0, '$':0, 'T':0,
-                  '&':0, ',':0, 'R':0, 'X':0, '~':0, 'O':0, 'Z':0}
+                  '&':0, ',':0, 'R':0, 'X':0, '~':0, 'O':0, 'Z':0, 'E':0}
     no_answer = {'N':0, 'V':0, 'A':0, '!':0, 'P':0, 'G':0, 'L':0, '^':0, 'D':0, '$':0, 'T':0,
-                 '&':0, ',':0, 'R':0, 'X':0, '~':0, 'O':0, 'Z':0}
+                 '&':0, ',':0, 'R':0, 'X':0, '~':0, 'O':0, 'Z':0, 'E':0}
     for tweet in lo_tweets:
         for oov in tweet.oov_tokens:
             if oov.answer is '':
