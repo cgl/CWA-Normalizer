@@ -54,7 +54,7 @@ def main(argv):
     twt = MTweet(database,max_dis,infile)
     twt.get_raw_tweets()
 
-#    matrix1 = analysis.calc_score_matrix(constants.pos_tagged,constants.results,analysis.ovvFunc,database=database)
+#    matrix1 = analysis.calc_score_matrix(pos_tagged,results,analysis.ovvFunc,database=database)
 
 if __name__ == "__main__":
     logging.info('Start Processing')

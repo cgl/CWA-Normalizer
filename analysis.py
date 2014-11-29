@@ -1,14 +1,12 @@
-from scoring import pennel
 import normalizer
-import CMUTweetTagger
 import tools
 import copy
 import traceback
 import logging
-import constants
+from data import han
 from extra import calc_score_matrix_wo_tag, calc_score_matrix_with_degree
 
-from conf import SLANG, threshold, slang_threshold, max_val, verbose, distance, database, OOVFUNC as oov_fun, wo_tag, with_degree, window_size, clean_words, met_map
+from conf import SLANG, threshold, slang_threshold, max_val, distance, database, OOVFUNC as oov_fun, wo_tag, with_degree, window_size, clean_words, met_map
 
 # create file handler which logs even debug messages
 fh = logging.FileHandler('analysis.log')
@@ -194,24 +192,6 @@ def ext_contextual_candidates(tweet_pos_tagged,oov_ind,norm):
     oov_word_digited = tools.replace_digits(oov_word_reduced)
     return [(oov_word_digited,oov_tag),keys,score_matrix]
 
-def construct_mapp_penn(pos_tagged_penn, results_penn):
-    mapp_penn = []
-    for t_ind,tweet in enumerate(results_penn):
-        for w_ind,(word,stag,cor) in enumerate(tweet):
-            if stag == "OOV":
-                mapp_penn.append((word,cor,pos_tagged_penn[t_ind][w_ind][1]))
-    return mapp_penn
-
-def calculate_score_penn(hyp_file,ref_file):
-    tweets_penn,results_penn = pennel(5000,hyp_file,ref_file)
-    pos_tagged_penn = CMUTweetTagger.runtagger_parse(tweets_penn)
-    window_size = 5
-    matrix_penn = calc_score_matrix(pos_tagged_penn, results_penn, oov_fun, window_size)
-    mapp_penn = construct_mapp_penn(pos_tagged_penn, results_penn)
-    bos_oov_penn = ['' for word in mapp_penn ]
-    set_penn = run(matrix_penn,[],[],bos_oov_penn,results = results_penn, pos_tagged = pos_tagged_penn)
-    return set_penn, mapp_penn, results_penn, pos_tagged_penn
-
 def construct_mapp(pos_tagged, results,oov_fun):
     mapp = []
     for t_ind,tweet in enumerate(results):
@@ -219,19 +199,6 @@ def construct_mapp(pos_tagged, results,oov_fun):
             if oov_fun(word,stag,cor):
                 mapp.append((word,cor,pos_tagged[t_ind][w_ind][1]))
     return mapp
-
-def test_detection(index,oov_fun):
-    if index:
-        pos_tagged = constants.pos_tagged[index:index+1]
-        results = constants.results[index:index+1]
-    else:
-        pos_tagged = constants.pos_tagged
-        results = constants.results
-    matrix1 = calc_score_matrix(pos_tagged,results,oov_fun, window_size)
-    mapp = construct_mapp(pos_tagged, results, oov_fun)
-    all_oov =  ['' for word in mapp ]
-    set_oov_detect = run(matrix1,[],[],all_oov,results = results, pos_tagged = pos_tagged)
-    return set_oov_detect
 
 # res_dict = feat_mat[ind]
 def filter_and_sort_candidates(res_dict,oov):
@@ -303,8 +270,8 @@ def show_results(res_mat,mapp, not_oov = []):
         len(correct_answers),len(incorrect_answers),len(incorrectly_corrected_word))
     return results,correct_answers,incorrect_answers, incorrectly_corrected_word, correctly_unchanged
 
-def run(matrix1,fmd,feat_mat,not_oov,results = constants.results,
-        pos_tagged = constants.pos_tagged):
+def run(matrix1,fmd,feat_mat,not_oov,results = han.RESULTS,
+        pos_tagged = han.POS_TAGGED):
     mapp = construct_mapp(pos_tagged, results, oov_fun)
     if not_oov is None:
         bos_oov = [word[0] if word[0] == word[1] else '' for word in mapp ]
@@ -358,8 +325,8 @@ def calculate_results(res_mat,mapp):
         results[oov] = answer
     return results
 
-def run_old(matrix1,fmd,feat_mat,slang,not_oov,mapp,results = constants.results,
-        pos_tagged = constants.pos_tagged):
+def run_old(matrix1,fmd,feat_mat,slang,not_oov,mapp,results = han.RESULTS,
+        pos_tagged = han.POS_TAGGED):
     if not matrix1:
         matrix1 = calc_score_matrix(pos_tagged, results, oov_fun, window_size)
     #max_val=[1.0, 1.0, 1.0, 1.0, 5.0, 1./1873142]

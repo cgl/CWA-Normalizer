@@ -1,15 +1,11 @@
-from scoring import han,pennel
 import enchant
-from fuzzy import DMetaphone
 import normalizer
 import CMUTweetTagger
 import tools
-import numpy
 import re
 import copy
 import traceback
-import logging
-import constants
+from data import han
 
 is_ill = lambda x,y,z : True if x != z else False
 is_ovv = lambda x,y,z : True if y == 'OOV' else False
@@ -19,7 +15,7 @@ slang = tools.get_slangs()
 met_map = {}
 
 def detect_ovv(slang):
-    from constants import mapping as mapp
+    mapp = han.MAPPING
     not_ovv= []
     for ind in range (0,len(mapp)):
         ovv = mapp[ind][0]
@@ -214,8 +210,7 @@ def construct_mapp(pos_tagged,oov_fun):
     return mapp
 
 def test_detection(index,oov_fun):
-    pos_tagged = constants.pos_tagged[index:index+1]
-    results = constants.results[index:index+1]
+    pos_tagged = han.POS_TAGGED[index:index+1]
     matrix1 = calc_score_matrix(pos_tagged,oov_fun,7,database='tweets2')
     mapp = construct_mapp(pos_tagged, oov_fun)
     all_oov =  ['' for word in pos_tagged ]

@@ -41,7 +41,7 @@ def norm_all(tweets_annotated,order):
     tools.get_performance(len(ans),len(incor),len(fp),evaluations['num_of_words_req_norm'])
     return lo_tweets,evaluations
 
-# standalone.construct_annotated(constants.pos_tagged, constants.results, conf.ovv_fun_20_filtered_extended)
+# standalone.construct_annotated(pos_tagged, results, conf.ovv_fun_20_filtered_extended)
 def construct_annotated(pos_tagged, results,oov_fun):
     annotated = []
     for t_ind,tweet in enumerate(results):

@@ -1,6 +1,5 @@
 import re
 import os
-import constants
 import CMUTweetTagger
 from pymongo import MongoClient
 from numpy import array
@@ -13,13 +12,14 @@ import string
 import difflib
 import mlpy
 import enchant
+import data
 
 units = ["zero", "one", "to", "three", "for",  "five","six", "seven", "eight", "nine"]
 units_in_oov = ["o","one","to","three","for","five","six", "seven", "eight", "nine"]
 units_in_word = ["o",("one","l"),"to", "e", ("for","fore","a") , "s",  "b",  "t", "ate", "g"]
 pronouns = {u'2':u"to",u'w':u"with",u'4':u'for'}
 
-#mapp = constants.mapping
+
 dic= enchant.Dict("en_US")
 vowels = ('a', 'e', 'i', 'o', 'u', 'y')
 chars = string.lowercase + string.digits + string.punctuation
@@ -41,7 +41,7 @@ def build_mappings(results,pos_tagged,oov_fun):
                 acc = pos_tagged[i][word_ind][2]
                 mapp.append([org_word,ann_word,tag,acc])
     return mapp
-#ann_and_pos_tag = build_mappings(constants.results,constants.pos_tagged)
+#ann_and_pos_tag = build_mappings(RESULTS,POS_TAGGED)
 
 def spell_check(word):
     twos = [u"am",u"an",u"as",u"at",u"be",u"by",u"do",u"go",u"hi",u"id",u"if",u"in",u"is",u"it",u"me",u"mr",u"ms",u"my",u"no",u"of",u"on",u"or",u"pm",u"so",u"to",u"up",u"us",u"vs",u"we"]
@@ -392,7 +392,7 @@ def get_performance_old(correct,not_found,incorrect,total_not_ill):
 
 def get_clean_words():
     words = {}
-    for tag in constants.tags:
+    for tag in data.TAGS:
         cursor = db_tweets.nodes.find({"ovv":False,"tag":tag,"freq":{"$gt": 100}}).sort("freq",-1)
         words[tag] = set()
         for node in cursor:

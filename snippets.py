@@ -1,37 +1,38 @@
-import conf,constants, standalone, time, analysis,operator
+import conf, standalone, time, analysis,operator
+from data import han
 
-annotated = standalone.construct_annotated(constants.pos_tagged, constants.results, conf.OOVFUNC)
-annotated01 = standalone.construct_annotated(constants.pos_tagged[0:1], constants.results[0:1], conf.OOVFUNC)
-#annotated05 = standalone.construct_annotated(constants.pos_tagged[0:5],
-#                                             constants.results[0:5], conf.OOVFUNC)
-#annotated010 = standalone.construct_annotated(constants.pos_tagged[0:10],
-#                                             constants.results[0:10], conf.OOVFUNC)
-#annotated0100 = standalone.construct_annotated(constants.pos_tagged[0:100],
-#                                              constants.results[0:100], conf.OOVFUNC)
-#annotated0200 = standalone.construct_annotated(constants.pos_tagged[0:200],
-#                                              constants.results[0:200], conf.OOVFUNC)
+ANNOTATED = standalone.construct_annotated(han.POS_TAGGED, han.RESULTS, conf.OOVFUNC)
+ANNOTATED01 = standalone.construct_annotated(han.POS_TAGGED[0:1], han.RESULTS[0:1], conf.OOVFUNC)
+#ANNOTATED05 = standalone.construct_annotated(han.POS_TAGGED[0:5],
+#                                             han.RESULTS[0:5], conf.OOVFUNC)
+#ANNOTATED010 = standalone.construct_annotated(han.POS_TAGGED[0:10],
+#                                             han.RESULTS[0:10], conf.OOVFUNC)
+#ANNOTATED0100 = standalone.construct_annotated(han.POS_TAGGED[0:100],
+#                                              han.RESULTS[0:100], conf.OOVFUNC)
+#ANNOTATED0200 = standalone.construct_annotated(han.POS_TAGGED[0:200],
+#                                              han.RESULTS[0:200], conf.OOVFUNC)
 
 # ord549 = snippets.ordered(0,549)
 
 # unord549 = snippets.un_ordered(0,549)
 
 def all_ordered():
-    return all_un_ordered(ordered=True)
+    return all_un_ordered(is_ordered=True)
 
-def all_un_ordered(ordered=False):
+def all_un_ordered(is_ordered=False):
     start = time.time()
-    lo_tweets,e = standalone.norm_all(annotated,ordered)
+    lo_tweets,evl = standalone.norm_all(ANNOTATED,is_ordered)
     end = time.time()
     print("Time: %d" %(end - start))
-    return lo_tweets,e
+    return lo_tweets,evl
 
 def ordered(i,j):
-    lo_tweets,e = standalone.norm_all(annotated[i:j],True)
-    return lo_tweets,e
+    lo_tweets,evl = standalone.norm_all(ANNOTATED[i:j],True)
+    return lo_tweets,evl
 
 def un_ordered(i,j):
-    lo_tweets,e = standalone.norm_all(annotated[i:j],False)
-    return lo_tweets,e
+    lo_tweets,evl = standalone.norm_all(ANNOTATED[i:j],False)
+    return lo_tweets,evl
 
 def run(i,j):
     start = time.time()
@@ -39,8 +40,8 @@ def run(i,j):
         setcurrent = analysis.run([],[],[],None)
     else:
         setcurrent = analysis.run([],[],[],None,
-                                  pos_tagged=constants.pos_tagged[i:j],
-                                  results = constants.results[i:j])
+                                  pos_tagged = han.POS_TAGGED[i:j],
+                                  results = han.RESULTS[i:j])
     end = time.time()
     print("Time: %d" %(end - start))
     return setcurrent

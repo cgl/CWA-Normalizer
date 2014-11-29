@@ -138,3 +138,16 @@ def calc_each_neighbours_score(tweets_str, results, oov,tweets):
                 candidates = norm.get_neighbours_candidates(tweet_pos_tagged,oov_word,oov_tag)
                 lo_candidates.append({'oov_word' : oov_word , 'tag' : oov_tag , 'cands' : candidates})
     return lo_candidates
+
+def test_detection(index,oov_fun):
+    if index:
+        pos_tagged = han.POS_TAGGED[index:index+1]
+        results = han.RESULTS[index:index+1]
+    else:
+        pos_tagged = han.POS_TAGGED
+        results = han.RESULTS
+    matrix1 = calc_score_matrix(pos_tagged,results,oov_fun, window_size)
+    mapp = construct_mapp(pos_tagged, results, oov_fun)
+    all_oov =  ['' for word in mapp ]
+    set_oov_detect = run(matrix1,[],[],all_oov,results = results, pos_tagged = pos_tagged)
+    return set_oov_detect

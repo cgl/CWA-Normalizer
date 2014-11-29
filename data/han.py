@@ -1,28 +1,4 @@
-tags = [u'A',
-        u'N',
-        u'^',
-        u'V',
-        u'!',
-        u'O',
-        u'G',
-        u'S',
-        u'R',
-        u',',
-        u'P',
-        u'Z',
-        u'L',
-        u'D',
-        u'&',
-        u'T',
-        u'X',
-        u'Y',
-        u'M',
-        u'$',
-        u'E',
-        u'~',
-    ]
-
-mapping = [[u'pix', u'pictures', 'N'],
+MAPPING = [[u'pix', u'pictures', 'N'],
  [u'comming', u'coming', 'V'],
  [u'tomoroe', u'tomorrow', 'N'],
  [u'dang', u'dang', '!'],
@@ -2166,7 +2142,7 @@ mapping = [[u'pix', u'pictures', 'N'],
  [u'u', u'you', 'O'],
  [u'lol', u'lol', '!']]
 
-pos_tagged = [[('new', 'A', 0.9938), #0
+POS_TAGGED = [[('new', 'A', 0.9938), #0
   ('pix', 'N', 0.9639),
   ('comming', 'V', 0.9971),
   ('tomoroe', 'N', 0.4327)],
@@ -12742,7 +12718,7 @@ pos_tagged = [[('new', 'A', 0.9938), #0
   ('lol', '!', 0.9945)],
 ]
 
-results = [[(u'new', u'IV', u'new'),
+RESULTS = [[(u'new', u'IV', u'new'),
   (u'pix', u'OOV', u'pictures'),
   (u'comming', u'OOV', u'coming'),
   (u'tomoroe', u'OOV', u'tomorrow')],
