@@ -61,11 +61,11 @@ def oov_statistics(lo_tweets):
 # Lists the frequencies of the tags in the lo_tweets given
 def tag_statistics(lo_tweets):
     corrects = {'N':0, 'V':0, 'A':0, '!':0, 'P':0, 'G':0, 'L':0, '^':0, 'D':0, '$':0, 'T':0,
-                '&':0, ',':0, 'R':0, 'X':0, '~':0, 'O':0, 'Z':0, 'E':0}
+                '&':0, ',':0, 'R':0, 'X':0, '~':0, 'O':0, 'Z':0, 'E':0, 'S':0}
     incorrects = {'N':0, 'V':0, 'A':0, '!':0, 'P':0, 'G':0, 'L':0, '^':0, 'D':0, '$':0, 'T':0,
-                  '&':0, ',':0, 'R':0, 'X':0, '~':0, 'O':0, 'Z':0, 'E':0}
+                  '&':0, ',':0, 'R':0, 'X':0, '~':0, 'O':0, 'Z':0, 'E':0, 'S':0}
     no_answer = {'N':0, 'V':0, 'A':0, '!':0, 'P':0, 'G':0, 'L':0, '^':0, 'D':0, '$':0, 'T':0,
-                 '&':0, ',':0, 'R':0, 'X':0, '~':0, 'O':0, 'Z':0, 'E':0}
+                 '&':0, ',':0, 'R':0, 'X':0, '~':0, 'O':0, 'Z':0, 'E':0, 'S':0}
     for tweet in lo_tweets:
         for oov in tweet.oov_tokens:
             if oov.answer is '':
