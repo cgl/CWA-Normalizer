@@ -156,6 +156,10 @@ def isMention(w):
 def isHashtag(w):
     return w.startswith("#")
 
+def isURL(w):
+    return w.startswith("http") or w.startswith("www.")
+
+
 def gen_walk(path='.'):
     for dirname, dirnames, filenames in os.walk(path):
         # print path to all subdirectories first.

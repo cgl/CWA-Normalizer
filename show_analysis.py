@@ -24,35 +24,3 @@ def show_nth_index(ind,index_list,res,mapp,max_val,last=4):
     for rr in index_list[ind][1]:
         print rr,mapp[rr]
         pretty_top_n(res,rr,mapp,max_val,last=last)
-
-def find_slang(nil,slang):
-    i = 0
-    slang = get_slangs()
-    for a in nil:
-        if slang.has_key(a[1]) and slang.get(a[1]).strip() == a[2]: # strip sil
-            #print a[1],a[2]
-            i+=1
-        elif in_edit_dis(a[1],a[2],3):
-            print a[1],a[2],editdist_edits(a[1],a[2])
-    print i
-
-def slang_analysis(slang,mapp):
-    i = 0
-    for tup in mapp:
-        multi = False
-        correct_answer = False
-        ill = False
-        sl = None
-        ovv = get_reduced(tup[0])
-        if slang.has_key(ovv):
-            sl = slang.get(ovv)
-            if len(sl.split(" ")) > 1:
-                multi = True
-            elif  sl  == tup[1]:
-                i += 1
-                correct_answer = True
-            elif tup[0] != tup[1]:
-                #print tup[0],tup[1],sl
-                ill = True
-        print "%s [%s] :\t %s , %r, %r, %r" %(tup[0],tup[1],sl,multi,ill,correct_answer)
-    print "Corrected %d word" %i

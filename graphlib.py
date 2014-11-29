@@ -10,17 +10,9 @@
 # Sample input and output can be foun within the directory of the github project page.**
 #
 
-import langid, getopt, sys, logging, os
-import CMUTweetTagger
-import enchant
-import ast
-import re
-import sys, getopt
-import langid
-import logging
-from pymongo import MongoClient
+import getopt, sys, logging
 from MTweet import MTweet
-from tools import *
+
 
 FORMAT = '%(asctime)-12s (%(process)d) %(message)s'
 ERROR_FORMAT = '%(asctime)-12s (%(process)d) %(message)s'

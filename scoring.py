@@ -89,13 +89,3 @@ def bisi(numOfResults=548):
     f_m = nltk.metrics.scores.f_measure(set_reference,set_test )
     print 'F-measure: %f' % f_m
     return reference,test
-
-
-def calculateRecall():
-    return 0
-
-def calculatePrecision():
-    return 0
-
-def calculateFmeasure():
-    return 0

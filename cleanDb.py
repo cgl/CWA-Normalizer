@@ -3,7 +3,7 @@ import CMUTweetTagger
 import graph
 #use tweets
 #db.copyDatabase("tweets","tweets_current","localhost")
-def update_edges_tag(database='tweets'):
+def update_edges_tag(database):
     tweets = [u"someone is cold game nd he needs to follow me",
           u"only 3mths left in school . i wil always mis my skull , frnds and my teachrs"]
 
@@ -36,7 +36,7 @@ def update_edges_tag(database='tweets'):
         norm.edges.update({'from': { '$in' : nouns}},{'$set' : {u'from_tag':tag } },multi=True)
         norm.edges.update({'to': { '$in' : nouns}},{'$set' : {u'to_tag':tag } },multi=True)
 
-def setDegrees(database='tweets2'):
+def setDegrees(database):
     query = graph.db_tweets.nodes.find()
     for node in query:
         indegree = graph.db_tweets.edges.find({'to': node['node'], 'to_tag': node['tag']}).count()
@@ -45,7 +45,7 @@ def setDegrees(database='tweets2'):
                                      {'$set' : {u'indegree':indegree, u'outdegree':outdegree }}, multi=False)
         #print(node)
 
-def ensure_indexes(database='tweets'):
+def ensure_indexes(database):
     from pymongo import MongoClient
     client = MongoClient('localhost', 27017)
     db = client[database]

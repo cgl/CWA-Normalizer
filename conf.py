@@ -22,12 +22,12 @@ window_size = 7
 mydict20 = tools.db_tweets.nodes.find({'freq' : {"$gt": 20}}).distinct("node")
 mydict20_filtered = filter(tools.spell_check,mydict20)
 
-ovv_fun_20_filtered_extended = lambda x,y,z: not (x in mydict20_filtered) if tools.isvalid(x) and not tools.isHashtag(x) and not tools.isMention(x) else False
+ovv_fun_20_filtered_extended = lambda x,y,z: not (x in mydict20_filtered) if tools.isvalid(x) and not tools.isHashtag(x) and not tools.isMention(x) and tools.notURL(x) else False
 
 mydict60 = tools.db_tweets.nodes.find({'freq' : {"$gt": 60}}).distinct("node")
 mydict60_filtered = filter(tools.spell_check,mydict60)
 
-ovv_fun_60_filtered_extended = lambda x,y,z: not (x in mydict60_filtered) if tools.isvalid(x) and not tools.isHashtag(x) and not tools.isMention(x) else False
+ovv_fun_60_filtered_extended = lambda x,y,z: not (x in mydict60_filtered) if tools.isvalid(x) and not tools.isHashtag(x) and not tools.isMention(x) and tools.isURL(x) else False
 
 clean_words = tools.get_clean_words()
 met_map = {}
