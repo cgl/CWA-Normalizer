@@ -64,11 +64,16 @@ class Tweet:
             self.tokens.append(token)
             self.normalization.append(token[0:3])
             if token[-1] == 'OOV':
-                oov_token = Oov_token(token[0],ind,token[1],self)
+                oov_token = Oov_token(token[0],ind,token[1],token[2],self)
                 self.oov_tokens.append(oov_token)
             if token[0] != token[2]:
                 self.num_of_words_req_norm += 1
-        print('There are %s oov words in the tweet' %len(self.oov_tokens))
+
+    def __repr__(self):
+        rep = ''
+        for token in self.tokens:
+            rep += (token[0] if token[3] == 'IV' else '['+str(token[0])+']') + ' '
+        return "< Tweet[%2d]: %s >" % (self.num_of_words_req_norm, rep)
 
     def normalize(self,order):
         for oov_token in self.oov_tokens:

@@ -3,10 +3,11 @@ from analysis import ext_contextual_candidates, add_slangs, add_from_dict, add_n
 from conf import SLANG, database, window_size, distance
 
 class Oov_token:
-    def __init__(self,oov,ind,tag,tweet):
+    def __init__(self,oov,ind,tag,canonical,tweet):
         self.oov = oov
         self.oov_tag = tag
         self.oov_ind = ind
+        self.canonical = canonical
         self.tweet = tweet
         self.answer = ''
         self.contextual_candidates = []
@@ -33,3 +34,19 @@ class Oov_token:
         self.score_mat = filter_and_sort_candidates(res_dict,self.oov)
         if self.score_mat:
             self.answer = self.score_mat[0][0]
+
+    def __repr__(self):
+        return "<Oov Token:%15s tag:%s canonical:%15s normalization:%s>" % (self.oov,
+                                                                        self.oov_tag,
+                                                                        self.canonical,
+                                                                        self.answer)
+
+    def __details__(self):
+        print('%15s %2s %2.2s %15s %5d %4d %3d %15s' %('Oov','Tag','Index','Answer','Cont. Cands',
+                                                       'Lexical Cands','Filt Cands','Canonical'))
+        print('%15s %2s %2.2d %15s %5d %4d %3d %15s' %(self.oov,self.oov_tag,
+                            self.oov_ind, self.answer or '-',
+                            len(self.contextual_candidates[1]),
+                            len(self.fmd[0]),
+                            len(self.score_mat),
+                            '' if self.canonical.lower() ==  self.answer else self.canonical,))
