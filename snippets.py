@@ -50,13 +50,7 @@ def oov_statistics(lo_tweets):
     for tweet in lo_tweets:
         for oov in tweet.oov_tokens:
             oov.canonical = oov.tweet.tokens[oov.oov_ind][2]
-            #oov.__details__()
-            print('%15s %2s %2.2d %15s %5d %4d %3d %15s' %(oov.oov,oov.oov_tag,
-                            oov.oov_ind, oov.answer or '-',
-                            len(oov.contextual_candidates[1]),
-                            len(oov.fmd[0]),
-                            len(oov.score_mat),
-                            '' if oov.canonical.lower() ==  oov.answer else oov.canonical,))
+            oov.__details__()
 
 # Lists the frequencies of the tags in the lo_tweets given
 def tag_statistics(lo_tweets):
@@ -75,7 +69,7 @@ def tag_statistics(lo_tweets):
             else:
                 incorrects[oov.oov_tag] += 1
     sorted_corr = sorted(corrects.items(), key=operator.itemgetter(1),reverse=True)
-    print(' ','| ','%3s' %'Corr','%3s' %'Inc', '%3s' %'No', '%3s' %'Tot')
+    print(' ','| ','%-3s' %'Corr','%-3s' %'Inc', '%-3s' %'No', '%-3s' %'Tot')
     for (tag,freq) in sorted_corr:
-        print(tag,': ','%3d' %freq,'%3d' %incorrects[tag],'%3d' %no_answer[tag],
-              '%3d' %(freq+incorrects[tag]+no_answer[tag]))
+        print(tag,': ','%-3d' %freq,'%-3d' %incorrects[tag],'%-3d' %no_answer[tag],
+              '%-3d' %(freq+incorrects[tag]+no_answer[tag]))

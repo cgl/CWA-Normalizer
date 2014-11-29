@@ -36,15 +36,15 @@ class Oov_token:
             self.answer = self.score_mat[0][0]
 
     def __repr__(self):
-        return "<Oov Token:%15s tag:%s canonical:%15s normalization:%s>" % (self.oov,
+        return "<Oov Token:%-15s tag:%s canonical:%-15s normalization:%s>" % (self.oov,
                                                                         self.oov_tag,
                                                                         self.canonical,
                                                                         self.answer)
 
     def __details__(self):
-        print('%15s %2s %2.2s %15s %5d %4d %3d %15s' %('Oov','Tag','Index','Answer','Cont. Cands',
+        print('%-15s %2s %2.2s %-15s %5d %4d %3d %-15s' %('Oov','Tag','Index','Answer','Cont. Cands',
                                                        'Lexical Cands','Filt Cands','Canonical'))
-        print('%15s %2s %2.2d %15s %5d %4d %3d %15s' %(self.oov,self.oov_tag,
+        print('%-15s %2s %2.2d %-15s %5d %4d %3d %-15s' %(self.oov,self.oov_tag,
                             self.oov_ind, self.answer or '-',
                             len(self.contextual_candidates[1]),
                             len(self.fmd[0]),
