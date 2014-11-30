@@ -305,3 +305,16 @@ def run(matrix1,fmd,feat_mat,not_oov,results = han.RESULTS,
     except:
         print(traceback.format_exc())
         return [res, feat_mat, fmd, matrix1, ans, incor]
+
+def test_detection(index,oov_fun):
+    if index:
+        pos_tagged = han.POS_TAGGED[index:index+1]
+        results = han.RESULTS[index:index+1]
+    else:
+        pos_tagged = han.POS_TAGGED
+        results = han.RESULTS
+    matrix1 = calc_score_matrix(pos_tagged,results,oov_fun, window_size)
+    mapp = construct_mapp(pos_tagged, results, oov_fun)
+    all_oov =  ['' for word in mapp ]
+    set_oov_detect = run(matrix1,[],[],all_oov,results = results, pos_tagged = pos_tagged)
+    return set_oov_detect
