@@ -193,7 +193,8 @@ def ext_contextual_candidates(tweet_pos_tagged,oov_ind,norm):
     if FILTERCONTEXTUALCANDS:
         filtered_keys, filtered_score_matrix = filter_cont_cands(keys, score_matrix)
         return [(oov_word_digited,oov_tag),filtered_keys, filtered_score_matrix]
-    return [(oov_word_digited,oov_tag),keys,score_matrix]
+    else:
+        return [(oov_word_digited,oov_tag),keys,score_matrix]
 
 def filter_cont_cands(keys, score_mat):
     filtered_keys = []
