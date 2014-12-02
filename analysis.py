@@ -6,7 +6,7 @@ import logging
 from data import han
 from extra import calc_score_matrix_wo_tag, calc_score_matrix_with_degree
 
-from conf import SLANG, threshold, slang_threshold, max_val, distance, database, OOVFUNC as oov_fun, wo_tag, with_degree, window_size, clean_words, met_map
+from conf import SLANG, threshold, slang_threshold, max_val, distance, database, OOVFUNC as oov_fun, wo_tag, with_degree, window_size, clean_words, met_map, FILTERCONTEXTUALCANDS
 
 # create file handler which logs even debug messages
 fh = logging.FileHandler('analysis.log')
@@ -190,7 +190,20 @@ def ext_contextual_candidates(tweet_pos_tagged,oov_ind,norm):
     oov_word_reduced = tools.get_reduced(oov_word,count=2)
     #oov_word_reduced = tools.get_reduced_alt(oov_word) or oov_word
     oov_word_digited = tools.replace_digits(oov_word_reduced)
+    if FILTERCONTEXTUALCANDS:
+        filtered_keys, filtered_score_matrix = filter_cont_cands(keys, score_matrix)
+        return [(oov_word_digited,oov_tag),filtered_keys, filtered_score_matrix]
     return [(oov_word_digited,oov_tag),keys,score_matrix]
+
+def filter_cont_cands(keys, score_mat):
+    filtered_keys = []
+    filtered_score_mat = []
+    for ind,score_line in enumerate(score_mat):
+        if len(score_line) > 1:
+            filtered_keys.append(keys[ind])
+            filtered_score_mat.append(score_mat[ind])
+    return filtered_keys, filtered_score_mat
+
 
 def construct_mapp(pos_tagged, results,oov_fun):
     mapp = []

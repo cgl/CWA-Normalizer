@@ -31,3 +31,6 @@ ovv_fun_60_filtered_extended = lambda x,y,z: not (x in mydict60_filtered) if too
 
 clean_words = tools.get_clean_words()
 met_map = {}
+
+# NAACL
+FILTERCONTEXTUALCANDS = True
