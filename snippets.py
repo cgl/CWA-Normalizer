@@ -82,15 +82,20 @@ def neighbours(lo_tweets):
     fun = lambda x: x[1] not in conf.NA_TAGS
     fun_IV = lambda x: x[-1] == 'IV'
     fun_OOV = lambda x: x[-1] == 'OOV'
-
-    for tweet in lo_tweets:
+    print("%-4s %s \t %s \t %s \t %s \t %s \t %s" %("TID","ANS","CONT","#IV","#OOV","T_LEN","T_#OOV"))
+    for ind,tweet in enumerate(lo_tweets):
+        tweet_len = len(filter(fun, tweet.normalization))
+        tweet_oov_count = len(filter(lambda x: x[0] != x[2] , tweet.normalization))
         for oov in tweet.oov_tokens:
-            if oov.answer == oov.canonical and oov.score_mat[0][1] == 0.0:
-                filtered_n = filter(fun ,oov.tweet.tokens[oov.oov_ind-3:oov.oov_ind+3])
-                if len(filtered_n) > 0:
-                    print("%d \t %d" %(len(filter(fun_IV,filtered_n)),
-                                       len(filter(fun_OOV,filtered_n))))
-                    i += 1
-                else:
-                    print("%d \t %d" %(0,0))
-    print(i)
+            filtered_n = filter(fun ,oov.tweet.tokens[oov.oov_ind-3:oov.oov_ind+3])
+            iv_count = 0
+            oov_count = 0
+            result = oov.answer
+            cont_answer = '-'
+            if len(filtered_n) > 0:
+                iv_count = len(filter(fun_IV,filtered_n))
+                oov_count = len(filter(fun_OOV,filtered_n))
+            if not result is '':
+                result = oov.answer == oov.canonical
+                cont_answer = oov.score_mat[0][1] != 0.0
+            print("%-4d %s \t %s \t %d \t %d \t %d \t %d" %(ind, '-' if result is '' else result,cont_answer,iv_count,oov_count,tweet_len,tweet_oov_count))

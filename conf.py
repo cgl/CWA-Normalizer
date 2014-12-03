@@ -17,7 +17,7 @@ OOVFUNC = is_ill
 wo_tag=False
 with_degree=False
 window_size = 7
-NA_TAGS = ['#', ',', 'E', '~', 'U', '@'] # not available in db
+NA_TAGS = ['#', ',', 'E', '~', 'U', '@'] # not available in db was ',','@'
 
 #EMNLP setting
 mydict20 = tools.db_tweets.nodes.find({'freq' : {"$gt": 20}}).distinct("node")
@@ -34,4 +34,4 @@ clean_words = tools.get_clean_words()
 met_map = {}
 
 # NAACL
-FILTERCONTEXTUALCANDS = True
+FILTERCONTEXTUALCANDS = 1

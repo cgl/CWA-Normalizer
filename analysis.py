@@ -200,7 +200,7 @@ def filter_cont_cands(keys, score_mat):
     filtered_keys = []
     filtered_score_mat = []
     for ind,score_line in enumerate(score_mat):
-        if len(score_line) > 1:
+        if len(score_line) > FILTERCONTEXTUALCANDS:
             filtered_keys.append(keys[ind])
             filtered_score_mat.append(score_mat[ind])
     return filtered_keys, filtered_score_mat
