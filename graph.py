@@ -1,5 +1,6 @@
 from  numpy import array
 from pymongo import MongoClient
+from conf import NA_TAGS
 
 CLIENT = MongoClient('localhost', 27017)
 try:
@@ -18,14 +19,14 @@ def get_candidates_scores_with_degree(tweet_pos_tagged,oov,oov_tag):
     keys = []
     score_matrix = []
     for ind,(word, tag, _) in enumerate(froms):
-        if tag not in [',','@']:
+        if tag not in NA_TAGS:
             neigh_node = word.strip()
             neigh_tag = tag
             distance = len(froms) - 1 - ind
             cands_q = get_cands_with_degree(oov_tag, 'to', 'from', neigh_node, neigh_tag, distance)
             keys,score_matrix = write_scores(neigh_node,neigh_tag,cands_q, keys, score_matrix)
     for ind,(word, tag, _) in enumerate(tos):
-        if tag not in [',','@']:
+        if tag not in NA_TAGS:
             neigh_node = word.strip()
             neigh_tag = tag
             distance = ind
@@ -67,14 +68,14 @@ def get_candidates_scores_wo_tag(tweet_pos_tagged,oov):
     keys = []
     score_matrix = []
     for ind,(word, tag, _) in enumerate(froms):
-        if tag not in [',','@']:
+        if tag not in NA_TAGS:
             neigh_node = word.strip()
             neigh_tag = tag
             distance = len(froms) - 1 - ind
             cands_q = get_graph_cands_wo_tag('to', 'from', neigh_node, distance)
             keys,score_matrix = write_scores(neigh_node,neigh_tag,cands_q, keys, score_matrix)
     for ind,(word, tag, _) in enumerate(tos):
-        if tag not in [',','@']:
+        if tag not in NA_TAGS:
             neigh_node = word.strip()
             neigh_tag = tag
             distance = ind

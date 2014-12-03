@@ -47,6 +47,8 @@ def run(i,j):
     return setcurrent
 
 def oov_statistics(lo_tweets):
+    print('%-15s %2s %2.2s %-15s %5s %4s %3s %-15s' %('Oov','Tag','Index','Answer','Cont. Cands',
+                                                       'Lexical Cands','Filt Cands','Canonical'))
     for tweet in lo_tweets:
         for oov in tweet.oov_tokens:
             oov.canonical = oov.tweet.tokens[oov.oov_ind][2]

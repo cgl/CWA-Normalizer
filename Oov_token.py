@@ -20,9 +20,13 @@ class Oov_token:
         self.score_mat = []
         self.norm = normalizer.Normalizer([],database)
         self.norm.m = window_size/2
+        self.neighbours = []
 
     def norm_one(self):
         tweet = self.tweet.normalization
+        self.neighbours = filter(lambda x: x[1] not in ('@','U'),
+                                 self.tweet.tokens[self.oov_ind-int(window_size /2):
+                                                   self.oov_ind+int(window_size /2)])
         self.contextual_candidates = ext_contextual_candidates(tweet,self.oov_ind,self.norm)
         self.fms = add_slangs([self.contextual_candidates],SLANG)
         self.mapp = [[self.oov,None,self.oov_tag]]

@@ -17,6 +17,7 @@ OOVFUNC = is_ill
 wo_tag=False
 with_degree=False
 window_size = 7
+NA_TAGS = ['#', ',', 'E', '~', 'U', '@'] # not available in db
 
 #EMNLP setting
 mydict20 = tools.db_tweets.nodes.find({'freq' : {"$gt": 20}}).distinct("node")

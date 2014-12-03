@@ -114,7 +114,7 @@ class Normalizer:
         cands_q = []
         for node in candidates_q:
             cand = node[position] # cand
-            if len(cand) < 2:
+            if len(cand) < 2: # filter out letters cand = u'is' len(cand) = 2
                 continue
             # get frequencies of candidates
 	    cand_node = self.nodes.find_one({'node':cand,'tag': ovv_tag, 'ovv':False })
