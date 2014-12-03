@@ -75,3 +75,22 @@ def tag_statistics(lo_tweets):
     for (tag,freq) in sorted_corr:
         print(tag,': ','%-3d' %freq,'%-3d' %incorrects[tag],'%-3d' %no_answer[tag],
               '%-3d' %(freq+incorrects[tag]+no_answer[tag]))
+
+# lambda x: x[-1] == 'IV'
+def neighbours(lo_tweets):
+    i = 0
+    fun = lambda x: x[1] not in conf.NA_TAGS
+    fun_IV = lambda x: x[-1] == 'IV'
+    fun_OOV = lambda x: x[-1] == 'OOV'
+
+    for tweet in lo_tweets:
+        for oov in tweet.oov_tokens:
+            if oov.answer == oov.canonical and oov.score_mat[0][1] == 0.0:
+                filtered_n = filter(fun ,oov.tweet.tokens[oov.oov_ind-3:oov.oov_ind+3])
+                if len(filtered_n) > 0:
+                    print("%d \t %d" %(len(filter(fun_IV,filtered_n)),
+                                       len(filter(fun_OOV,filtered_n))))
+                    i += 1
+                else:
+                    print("%d \t %d" %(0,0))
+    print(i)

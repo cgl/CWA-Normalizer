@@ -1,6 +1,6 @@
 import re
 import os
-import CMUTweetTagger
+from lib import CMUTweetTagger
 from pymongo import MongoClient
 from numpy import array
 import pickle

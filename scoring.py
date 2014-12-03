@@ -1,4 +1,4 @@
-import CMUTweetTagger
+from lib import CMUTweetTagger
 from normalizer import Normalizer
 import traceback
 
