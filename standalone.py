@@ -30,7 +30,6 @@ def norm_all(tweets_annotated,order):
     evaluations = {'correct_answers':[], 'incorrect_answers':[], 'num_of_words_req_norm':0,
                    'incorrectly_corrected_word' : [], 'correctly_unchanged' : [] }
     for ind,tweet in enumerate(tweets_annotated):
-        print(ind)
         tweet_obj = Tweet(tweet)
         tweet_obj.normalize(order)
         tweet_obj.evaluate(evaluations)
