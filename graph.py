@@ -1,6 +1,6 @@
 from  numpy import array
 from pymongo import MongoClient
-from conf import NA_TAGS
+from conf import NA_TAGS, window_size
 
 CLIENT = MongoClient('localhost', 27017)
 try:
@@ -9,9 +9,7 @@ try:
 except:
     db_tweets  = None
 
-MAX_DIS = 4
-M = MAX_DIS -1
-
+M = int(window_size/2)
     # NO TAG
 
 def get_candidates_scores_with_degree(tweet_pos_tagged,oov,oov_tag):

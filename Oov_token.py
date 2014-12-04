@@ -24,9 +24,9 @@ class Oov_token:
 
     def get_neighbours(self):
         fun = lambda x: x[1] not in NA_TAGS
-        w_ind = int(window_size /2)+1
-        nn = self.tweet.tokens[max(self.oov_ind - w_ind ,0) : self.oov_ind]
-        nn.extend(self.tweet.tokens[self.oov_ind+1:self.oov_ind + w_ind])
+        m = int(window_size /2)
+        nn = self.tweet.tokens[max(self.oov_ind - m ,0) : self.oov_ind]
+        nn.extend(self.tweet.tokens[self.oov_ind+1:self.oov_ind + m + 1])
         return [neg for neg in nn if fun(neg)]
 
     def norm_one(self):
