@@ -49,7 +49,6 @@ def run(i,j):
 def oov_statistics(lo_tweets):
     for tweet in lo_tweets:
         for oov in tweet.oov_tokens:
-            oov.canonical = oov.tweet.tokens[oov.oov_ind][2]
             oov.__details__()
 
 # Lists the frequencies of the tags in the lo_tweets given

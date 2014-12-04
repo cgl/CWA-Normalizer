@@ -1,5 +1,6 @@
 import conf, standalone, time, analysis,operator
 from data import han
+import tools
 
 ANNOTATED = standalone.construct_annotated(han.POS_TAGGED, han.RESULTS, conf.OOVFUNC)
 ANNOTATED01 = standalone.construct_annotated(han.POS_TAGGED[0:1], han.RESULTS[0:1], conf.OOVFUNC)
@@ -51,7 +52,6 @@ def oov_statistics(lo_tweets):
                                                        'Lexical Cands','Filt Cands','Canonical'))
     for tweet in lo_tweets:
         for oov in tweet.oov_tokens:
-            oov.canonical = oov.tweet.tokens[oov.oov_ind][2]
             oov.__details__()
 
 # Lists the frequencies of the tags in the lo_tweets given
@@ -87,15 +87,22 @@ def neighbours(lo_tweets):
         tweet_len = len(filter(fun, tweet.normalization))
         tweet_oov_count = len(filter(lambda x: x[0] != x[2] , tweet.normalization))
         for oov in tweet.oov_tokens:
-            filtered_n = filter(fun ,oov.tweet.tokens[oov.oov_ind-3:oov.oov_ind+3])
-            iv_count = 0
-            oov_count = 0
             result = oov.answer
             cont_answer = '-'
-            if len(filtered_n) > 0:
-                iv_count = len(filter(fun_IV,filtered_n))
-                oov_count = len(filter(fun_OOV,filtered_n))
+            iv_count = len(filter(fun_IV, oov.neighbours))
+            oov_count = len(filter(fun_OOV, oov.neighbours))
+            neigh_count = len(oov.neighbours)
             if not result is '':
-                result = oov.answer == oov.canonical
+                result = oov.answer.lower() == oov.canonical.lower()
                 cont_answer = oov.score_mat[0][1] != 0.0
-            print("%-4d %s \t %s \t %d \t %d \t %d \t %d" %(ind, '-' if result is '' else result,cont_answer,iv_count,oov_count,tweet_len,tweet_oov_count))
+            print("%-4d %s \t %s \t %d \t %d \t %d \t %d \t %d" %(ind, '-' if result is '' else result,cont_answer,iv_count,oov_count,neigh_count,tweet_len,tweet_oov_count))
+
+
+def performance(evl):
+    correct = len(evl['correct_answers'])
+    #evl['correctly_unchanged']
+    incorrect = len(evl['incorrect_answers'])
+    num_of_words_req_norm = evl['num_of_words_req_norm']
+    fp = len(evl['incorrectly_corrected_word'])
+    print(correct,incorrect,fp,num_of_words_req_norm)
+    tools.get_performance(correct,incorrect,fp,num_of_words_req_norm)

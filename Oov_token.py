@@ -1,6 +1,6 @@
 import normalizer
 from analysis import ext_contextual_candidates, add_slangs, add_from_dict, add_nom_verbs, iter_calc_lev, filter_and_sort_candidates
-from conf import SLANG, database, window_size, distance
+from conf import SLANG, database, window_size, distance,NA_TAGS
 
 class Oov_token:
     def __init__(self,oov,ind,tag,canonical,tweet):
@@ -22,11 +22,16 @@ class Oov_token:
         self.norm.m = window_size/2
         self.neighbours = []
 
+    def get_neighbours(self):
+        fun = lambda x: x[1] not in NA_TAGS
+        w_ind = int(window_size /2)+1
+        nn = self.tweet.tokens[max(self.oov_ind - w_ind ,0) : self.oov_ind]
+        nn.extend(self.tweet.tokens[self.oov_ind+1:self.oov_ind + w_ind])
+        return [neg for neg in nn if fun(neg)]
+
     def norm_one(self):
         tweet = self.tweet.normalization
-        self.neighbours = filter(lambda x: x[1] not in ('@','U'),
-                                 self.tweet.tokens[self.oov_ind-int(window_size /2):
-                                                   self.oov_ind+int(window_size /2)])
+        self.neighbours = self.get_neighbours()
         self.contextual_candidates = ext_contextual_candidates(tweet,self.oov_ind,self.norm)
         self.fms = add_slangs([self.contextual_candidates],SLANG)
         self.mapp = [[self.oov,None,self.oov_tag]]
