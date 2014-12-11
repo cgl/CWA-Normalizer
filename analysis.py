@@ -1,6 +1,6 @@
 import normalizer
 import tools
-import copy
+import copy, ipdb
 import traceback
 import logging
 from data import han
