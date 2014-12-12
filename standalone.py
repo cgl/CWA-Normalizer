@@ -6,7 +6,7 @@ from Oov_token import Oov_token
 
 def norm_one(tweet, oov_index):
     oov = tweet[oov_index][0] # oov_tag = tweet[oov_index][1]
-    norm = normalizer.Normalizer([tweet],database)
+    norm = normalizer.Normalizer(database)
     norm.m = window_size/2
     contextual_candidates = ext_contextual_candidates(tweet,oov_index,norm)
     fms = add_slangs([contextual_candidates],SLANG)

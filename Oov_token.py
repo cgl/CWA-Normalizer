@@ -18,8 +18,7 @@ class Oov_token:
         self.fm_reduced = []
         self.feat_mat = []
         self.score_mat = []
-        self.norm = normalizer.Normalizer([],database)
-        self.norm.m = window_size/2
+        self.norm = normalizer.Normalizer(database)
         self.neighbours = []
 
     def get_neighbours(self):
