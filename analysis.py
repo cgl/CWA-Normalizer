@@ -242,12 +242,12 @@ def evaluate_alt(answer, correct_answer, oov, evaluation):
                 evaluation['incorrect_answers'].append(answer)
     else: # people --> people , ppl --> ppl
         if oov != correct_answer: # fn: ppl  --> ppl
-            pass #incorrect_answers.append((ind,answer))
+            evaluation['no_answer'].append(answer) #incorrect_answers.append((ind,answer))
         else:                     # tn: people --> people
             evaluation['correctly_unchanged'].append(answer)
 
 def evaluate(answer, correct_answer, oov,correct_answers, ind, incorrect_answers,
-             incorrectly_corrected_word, correctly_unchanged):
+             incorrectly_corrected_word, correctly_unchanged, no_answer):
     if answer != oov: # ppl --> people , people --> ppl, ppl --> apple
         if answer.lower() == correct_answer.lower() : # tp: ppl --> people
             correct_answers.append((ind,answer))
@@ -258,7 +258,7 @@ def evaluate(answer, correct_answer, oov,correct_answers, ind, incorrect_answers
                 incorrect_answers.append((ind,answer))
     else: # people --> people , ppl --> ppl
         if oov != correct_answer: # fn: ppl  --> ppl
-            pass #incorrect_answers.append((ind,answer))
+            no_answer.append((ind,answer))
         else:                     # tn: people --> people
             correctly_unchanged.append((ind,answer))
 
@@ -269,6 +269,7 @@ def show_results(res_mat,mapp, not_oov = []):
     incorrect_answers = [] # False Negative
     incorrectly_corrected_word = [] # False Positive
     correctly_unchanged = [] # True Negative
+    no_answer = []
     for ind in range (0,len(res_mat)):
         oov = mapp[ind][0]
         if not_oov and not_oov[ind]:
@@ -280,10 +281,11 @@ def show_results(res_mat,mapp, not_oov = []):
         answer = res_list[0][0] if res_list else oov
         correct_answer = mapp[ind][1]
         evaluate(answer, correct_answer, oov,correct_answers, ind, incorrect_answers,
-                 incorrectly_corrected_word, correctly_unchanged)
-    print '# of correct normalizations %s, incorrect norms %s, changed correct token %s' % (
-        len(correct_answers),len(incorrect_answers),len(incorrectly_corrected_word))
-    return results,correct_answers,incorrect_answers, incorrectly_corrected_word, correctly_unchanged
+                 incorrectly_corrected_word, correctly_unchanged,no_answer)
+    print '# of correct normalizations %s, incorrect norms %s, changed correct token %s, Not Founs %d' % (
+        len(correct_answers),len(incorrect_answers),
+        len(incorrectly_corrected_word),len(no_answer))
+    return results,correct_answers,incorrect_answers, incorrectly_corrected_word, correctly_unchanged, no_answer
 
 def run(matrix1,fmd,feat_mat,not_oov,results = han.RESULTS,
         pos_tagged = han.POS_TAGGED):

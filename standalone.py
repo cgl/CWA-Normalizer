@@ -28,7 +28,7 @@ def calculate_score_all_cands(feat_mat):
 def norm_all(tweets_annotated,order):
     lo_tweets = []
     evaluations = {'correct_answers':[], 'incorrect_answers':[], 'num_of_words_req_norm':0,
-                   'incorrectly_corrected_word' : [], 'correctly_unchanged' : [] }
+                   'incorrectly_corrected_word' : [], 'correctly_unchanged' : [], 'no_ans' : []}
     for ind,tweet in enumerate(tweets_annotated):
         tweet_obj = Tweet(tweet)
         tweet_obj.normalize(order)
@@ -37,7 +37,8 @@ def norm_all(tweets_annotated,order):
     ans = evaluations['correct_answers']
     incor = evaluations['incorrect_answers']
     fp = evaluations['incorrectly_corrected_word']
-    tools.get_performance(len(ans),len(incor),len(fp),evaluations['num_of_words_req_norm'])
+    no_ans = evaluations['no_ans']
+    tools.get_performance(len(ans),len(incor),len(fp),len(no_ans),evaluations['num_of_words_req_norm'])
     return lo_tweets,evaluations
 
 # standalone.construct_annotated(pos_tagged, results, conf.ovv_fun_20_filtered_extended)
@@ -87,6 +88,7 @@ class Tweet:
         self.evaluation['incorrect_answers'] =  []         # False Negative
         self.evaluation['incorrectly_corrected_word'] = [] # False Positive
         self.evaluation['correctly_unchanged'] = []        # True Negative
+        self.evaluation['no_answer'] = []
         for oov_token in self.oov_tokens:
             correct_answer = oov_token.canonical
             oov = self.tokens[oov_token.oov_ind][0]
@@ -96,6 +98,7 @@ class Tweet:
         evaluations['incorrect_answers'].extend(self.evaluation['incorrect_answers'])
         evaluations['incorrectly_corrected_word'].extend(self.evaluation['incorrectly_corrected_word'])
         evaluations['correctly_unchanged'].extend(self.evaluation['correctly_unchanged'])
+        evaluations['no_ans'].extend(self.evaluation['no_answer'])
         evaluations['num_of_words_req_norm'] += self.num_of_words_req_norm
 
     def __str__(self):

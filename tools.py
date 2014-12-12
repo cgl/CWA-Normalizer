@@ -379,13 +379,13 @@ def replace_digits_alt(oov_word):
     return digited if dig_node else None
 
 # tools.get_performance(len(ans),len(miss),len(incor), num_of_normed_words, num_of_words_req_norm)
-def get_performance(correct,incorrect,fp,num_of_words_req_norm):
+def get_performance(correct,incorrect,fp,no_ans,num_of_words_req_norm):
     total_normalized_words = correct + fp + incorrect
     recall = float(correct)/num_of_words_req_norm
     precision = float(correct)/total_normalized_words
     fmeasure = 2 * precision * recall / (precision+recall)
-    print "Correct: %d, Incorrect: %d, Incorrectly corrected(fp) %d, Total Norm: %d, Req Norm: %d" %(
-        correct,         incorrect,    fp,  total_normalized_words, num_of_words_req_norm)
+    print "Correct: %d, Incorrect: %d, Incorrectly corrected(fp) %d, Not Found %d, Total Norm: %d, Req Norm: %d" %(
+        correct,incorrect,fp, no_ans, total_normalized_words, num_of_words_req_norm)
     print "Precision:%f , Recall: %f , FMeasure:%f" %(round(precision,4),round(recall,4),round(fmeasure,4))
 
 def get_performance_old(correct,not_found,incorrect,total_not_ill):
