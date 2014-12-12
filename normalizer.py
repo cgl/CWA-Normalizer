@@ -10,24 +10,78 @@ import logging
 from graph import write_scores, get_neighbours
 
 salient=0.001
-class Normalizer:
-
+class Normalizer(object):
     # input is a list s.t.
-#lot = [[('example', 'N', 0.979), ('tweet', 'V', 0.7763), ('1', '$', 0.9916)],
-#       [('example', 'N', 0.979), ('tweet', 'V', 0.7713), ('2', '$', 0.5832)]]
-    def __init__(self, input, database, method='normalize'):
-        max_dis = 4  # n-gram
-        self.method = method
-        self.m = max_dis - 1
-        self.texts = input
-        self.d = enchant.Dict("en_US")
+    #lot = [[('example', 'N', 0.979), ('tweet', 'V', 0.7763), ('1', '$', 0.9916)],
+    #       [('example', 'N', 0.979), ('tweet', 'V', 0.7713), ('2', '$', 0.5832)]]
+    def __init__(self, database):
+        self.froms = []
+        self.tos = []
         self.client = MongoClient('localhost', 27017)
-        db = self.client[database]
-        self.nodes = db['nodes']
-        self.edges = db['edges']
+        m_db = self.client[database]
+        self.nodes = m_db['nodes']
+        self.edges = m_db['edges']
         self.client.close()
-        self.ovvLists = [[ind for ind, t in enumerate(text)
-                          if self.isOvv(t[0], t[1])] for text in self.texts]
+        #        self.ovvLists = [[ind for ind, t in enumerate(text)
+        #                          if self.isOvv(t[0], t[1])] for text in self.texts]
+        #---------------------------------------------------
+    def get_candidates_scores(self, tweet_pos_tagged,ovv_ind,ovv_tag):
+        self.froms, self.tos = get_neighbours(tweet_pos_tagged, ovv_ind)
+        keys = []
+        score_matrix = []
+        for ind,(word, tag, _) in enumerate(self.froms):
+            neigh_node = word.strip()
+            neigh_tag = tag
+            distance = len(self.froms) - 1 - ind
+            cands_q = self.get_cands_with_weigh_freq(ovv_tag, 'to', 'from', neigh_node, neigh_tag, distance)
+            keys,score_matrix = write_scores(neigh_node,neigh_tag,cands_q, keys, score_matrix)
+        for ind,(word, tag, _) in enumerate(self.tos):
+            neigh_node = word.strip()
+            neigh_tag = tag
+            distance = ind
+            cands_q = self.get_cands_with_weigh_freq(ovv_tag, 'from', 'to', neigh_node, neigh_tag, distance)
+            keys,score_matrix = write_scores(neigh_node,neigh_tag,cands_q,keys,score_matrix)
+        return keys,score_matrix
+
+    def get_cands_with_weigh_freq(self, ovv_tag, position, neigh_position, neigh_node,
+                                  neigh_tag, distance):
+        try:
+            _ = self.nodes.find_one({'node':neigh_node,'tag': neigh_tag })['freq']
+        except:
+            return []
+        candidates_q = self.edges.find({neigh_position:neigh_node, neigh_position+'_tag': neigh_tag,
+                                        position+'_tag': ovv_tag,
+                                        'dis': distance , 'weight' : { '$gt': 1 } })
+        cands_q = []
+        for node in candidates_q:
+            cand = node[position] # cand
+            if len(cand) < 2: # filter out letters cand = u'is' len(cand) = 2
+                continue
+            # get frequencies of candidates
+            cand_node = self.nodes.find_one({'node':cand,'tag': ovv_tag, 'ovv':False })
+            #if ovv_tag == 'G':
+            #    try:
+            #        cand_node = self.nodes.find({'node':cand, 'ovv':False ,'freq': { '$gt': 8 } }).sort("freq", 1)[0]
+            #    except IndexError:
+            #        return []
+            #else:
+            #    cand_node = self.nodes.find_one({'node':cand,'tag': ovv_tag, 'ovv':False ,'freq': { '$gt': 8 } })
+            if(cand_node):
+                cands_q.append({'position': position, 'cand':cand, 'weight': node['weight'] ,
+                                'freq' : cand_node['freq']})
+        self.client.close()
+        return cands_q
+
+#-------------------------------------------------------
+
+class Old_normalizer:
+    def __init__(self, input, database, method='normalize'):
+        self.method = method
+        self.dic = enchant.Dict("en_US")
+        self.m = int(window_size/2)
+        self.texts = input
+
+
     def isOvvStr(self, w, t):
         return 'OVV' if self.isOvv(w, t) else 'IV'
 
@@ -43,7 +97,7 @@ class Normalizer:
             #print '%s : %s is not ovv' % (t, w)
             return False
         else:
-            return not self.d.check(w)
+            return not self.dic.check(w)
 
     def normalizeAll(self):
         results = []
@@ -82,56 +136,6 @@ class Normalizer:
         return (word, self.isOvvStr(word, tag),
                 normalizer(word, tag, word_ind, self.texts[tweet_ind]))
 
-#---------------------------------------------------
-    def get_candidates_scores(self, tweet_pos_tagged,ovv,ovv_tag):
-        froms,tos= get_neighbours(tweet_pos_tagged,ovv)
-        keys = []
-        score_matrix = []
-        for ind,(word, tag, acc) in enumerate(froms):
-          if tag not in [',','@']:
-            neigh_node = word.strip()
-            neigh_tag = tag
-            distance = len(froms) - 1 - ind
-            cands_q = self.get_cands_with_weigh_freq(ovv, ovv_tag, 'to', 'from', neigh_node, neigh_tag, distance)
-            keys,score_matrix = write_scores(neigh_node,neigh_tag,cands_q, keys, score_matrix)
-        for ind,(word, tag, acc) in enumerate(tos):
-          if tag not in [',','@']:
-            neigh_node = word.strip()
-            neigh_tag = tag
-            distance = ind
-            cands_q = self.get_cands_with_weigh_freq(ovv, ovv_tag, 'from', 'to', neigh_node, neigh_tag, distance)
-            keys,score_matrix = write_scores(neigh_node,neigh_tag,cands_q,keys,score_matrix)
-        return keys,score_matrix
-
-    def get_cands_with_weigh_freq(self, ovv_word, ovv_tag, position, neigh_position, neigh_node, neigh_tag, distance):
-        try:
-            neigh_node_freq = self.nodes.find_one({'node':neigh_node,'tag': neigh_tag })['freq']
-        except:
-            return []
-        candidates_q = self.edges.find({neigh_position:neigh_node, neigh_position+'_tag': neigh_tag,
-                                        position+'_tag': ovv_tag,
-                                        'dis': distance , 'weight' : { '$gt': 1 } })
-        cands_q = []
-        for node in candidates_q:
-            cand = node[position] # cand
-            if len(cand) < 2: # filter out letters cand = u'is' len(cand) = 2
-                continue
-            # get frequencies of candidates
-	    cand_node = self.nodes.find_one({'node':cand,'tag': ovv_tag, 'ovv':False })
-            #if ovv_tag == 'G':
-            #    try:
-            #        cand_node = self.nodes.find({'node':cand, 'ovv':False ,'freq': { '$gt': 8 } }).sort("freq", 1)[0]
-            #    except IndexError:
-            #        return []
-            #else:
-            #    cand_node = self.nodes.find_one({'node':cand,'tag': ovv_tag, 'ovv':False ,'freq': { '$gt': 8 } })
-            if(cand_node):
-                cands_q.append({'position': position, 'cand':cand, 'weight': node['weight'] ,
-                                'freq' : cand_node['freq']})
-        self.client.close()
-        return cands_q
-
-#-------------------------------------------------------
 
     def returnCandRight(self,tweet,ovvWord,ovvInd, ovvTag,scores):
         neigh_start_ind = max(ovvInd-self.m,0)

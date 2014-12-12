@@ -114,8 +114,9 @@ def get_neighbours(tweet_pos_tagged,oov_index):
     froms = []
     tos = []
     ind = oov_index
-    froms = tweet_pos_tagged[max(ind-M,0):ind]
-    tos = tweet_pos_tagged[ind+1:ind+1+M]
+    fun = lambda x: x[1] not in NA_TAGS
+    froms = filter(fun,tweet_pos_tagged[max(ind-M,0):ind])
+    tos = filter(fun,tweet_pos_tagged[ind+1:ind+1+M])
     return froms, tos
 
 def write_scores(neigh,neigh_tag,cands_q,keys,score_matrix):

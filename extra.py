@@ -1,9 +1,10 @@
 import numpy
 import normalizer,graph,tools
+from conf import database
 
-def calc_score_matrix_wo_tag(lo_postagged_tweets,results,ovv_fun,window_size, database='tweets'):
+def calc_score_matrix_wo_tag(lo_postagged_tweets,results,ovv_fun,window_size):
     lo_candidates = []
-    norm = normalizer.Normalizer(lo_postagged_tweets,database=database)
+    norm = normalizer.Normalizer(database)
     norm.m = window_size/2
     for tweet_ind in range(0,len(lo_postagged_tweets)):
         tweet_pos_tagged = lo_postagged_tweets[tweet_ind]
@@ -24,9 +25,9 @@ def calc_score_matrix_wo_tag(lo_postagged_tweets,results,ovv_fun,window_size, da
                                   ])
     return lo_candidates
 
-def calc_score_matrix_with_degree(lo_postagged_tweets,results,ovv_fun,window_size, database='tweets'):
+def calc_score_matrix_with_degree(lo_postagged_tweets,results,ovv_fun,window_size):
     lo_candidates = []
-    norm = normalizer.Normalizer(lo_postagged_tweets,database=database)
+    norm = normalizer.Normalizer(database)
     norm.m = window_size/2
     for tweet_ind in range(0,len(lo_postagged_tweets)):
         tweet_pos_tagged = lo_postagged_tweets[tweet_ind]

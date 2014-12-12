@@ -169,13 +169,12 @@ def add_candidate(cands,cand,oov,oov_tag,slang_threshold):
 
 def calc_score_matrix(lo_postagged_tweets,results,oov_fun,window_size):
     lo_candidates = []
-    norm = normalizer.Normalizer(lo_postagged_tweets,database)
-    norm.m = window_size/2
     for tweet_ind in range(0,len(lo_postagged_tweets)):
         tweet_pos_tagged = lo_postagged_tweets[tweet_ind]
         for j in range(0,len(tweet_pos_tagged)):
             word = results[tweet_ind][j]
             if oov_fun(word[0],word[1],word[2]):
+                norm = normalizer.Normalizer(database)
                 contextual_candidates = ext_contextual_candidates(tweet_pos_tagged,j,norm)
                 lo_candidates.append(contextual_candidates)
                 #lo_candidates.append([(word[0],oov_tag),[word[0]], # to append oov word itself to the candidate list
@@ -191,16 +190,18 @@ def ext_contextual_candidates(tweet_pos_tagged,oov_ind,norm):
     #oov_word_reduced = tools.get_reduced_alt(oov_word) or oov_word
     oov_word_digited = tools.replace_digits(oov_word_reduced)
     if FILTERCONTEXTUALCANDS:
-        filtered_keys, filtered_score_matrix = filter_cont_cands(keys, score_matrix)
+        filtered_keys, filtered_score_matrix = filter_cont_cands(keys,
+                                                                 score_matrix,
+                                                                 min(3,len(norm.froms) + len(norm.tos)))
         return [(oov_word_digited,oov_tag),filtered_keys, filtered_score_matrix]
     else:
         return [(oov_word_digited,oov_tag),keys,score_matrix]
 
-def filter_cont_cands(keys, score_mat):
+def filter_cont_cands(keys, score_mat,min_connected_neigh):
     filtered_keys = []
     filtered_score_mat = []
     for ind,score_line in enumerate(score_mat):
-        if len(score_line) > FILTERCONTEXTUALCANDS:
+        if len(score_line) > min_connected_neigh:
             filtered_keys.append(keys[ind])
             filtered_score_mat.append(score_mat[ind])
     return filtered_keys, filtered_score_mat
