@@ -1,8 +1,16 @@
 import normalizer,tools
 from analysis import ext_contextual_candidates, add_slangs, add_from_dict, add_nom_verbs, iter_calc_lev,show_results, calculate_score, filter_and_sort_candidates, evaluate_alt
-from conf import SLANG, database, window_size, distance, max_val, OOVFUNC as oov_fun
+from conf import SLANG, database, window_size, distance, max_val, OOVFUNC as oov_fun, ovv_fun_20_filtered_extended as EMNLP_fun
 import pdb
 from Oov_token import Oov_token
+
+def main(tweet_as_str):
+    tweet_pos_tagged = tools.parseTweet(tweet_as_str)
+    tweet_annotated = [(word,tag,None,'OOV' if EMNLP_fun(word,tag,_) else 'IV') for (word,tag,_) in tweet_pos_tagged]
+    tweet_obj = Tweet(tweet_annotated)
+    tweet_obj.normalize(True)
+    tweet_obj.print_normalized()
+    return tweet_obj
 
 def norm_one(tweet, oov_index):
     oov = tweet[oov_index][0] # oov_tag = tweet[oov_index][1]
@@ -73,7 +81,20 @@ class Tweet:
         rep = ''
         for token in self.tokens:
             rep += (token[0] if token[3] == 'IV' else '['+str(token[0])+']') + ' '
-        return "< Tweet[%2d]: %s >" % (self.num_of_words_req_norm, rep)
+        return rep
+
+    def print_normalized(self):
+        normalized = []
+        no_change = []
+        output = [token for token,_,_,_ in self.tokens]
+        for oov_token in self.oov_tokens:
+            if oov_token.answer:
+                normalized.append(oov_token.oov_ind)
+                output[oov_token.oov_ind] = oov_token.answer
+            else:
+                no_change.append(oov_token.oov_ind)
+        print(" ".join(output))
+        return output,normalized,no_change
 
     def normalize(self,order):
         for oov_token in self.oov_tokens:
