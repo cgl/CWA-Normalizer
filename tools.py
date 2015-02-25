@@ -138,6 +138,9 @@ def load_from_file(filename="matrix2.txt"):
         matrix = pickle.load(mfile)
     return matrix
 
+def parseTweet(tweet):
+    lot = CMUTweetTagger.runtagger_parse([tweet])
+    return lot[0] if len(lot)>=1 else lot
 
 def parseTweets(tweets):
     lot = CMUTweetTagger.runtagger_parse(tweets)
