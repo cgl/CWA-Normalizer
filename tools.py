@@ -19,6 +19,8 @@ units_in_oov = ["o","one","to","three","for","five","six", "seven", "eight", "ni
 units_in_word = ["o",("one","l"),"to", "e", ("for","fore","a") , "s",  "b",  "t", "ate", "g"]
 pronouns = {u'2':u"to",u'w':u"with",u'4':u'for'}
 
+file_path = os.path.dirname(os.path.realpath(__file__))
+RUN_TAGGER_CMD = "java -XX:ParallelGCThreads=2 -Xmx500m -jar " + file_path + "/ark-tweet-nlp-0.3.2.jar"
 
 dic= enchant.Dict("en_US")
 vowels = ('a', 'e', 'i', 'o', 'u', 'y')
@@ -139,11 +141,11 @@ def load_from_file(filename="matrix2.txt"):
     return matrix
 
 def parseTweet(tweet):
-    lot = CMUTweetTagger.runtagger_parse([tweet])
+    lot = CMUTweetTagger.runtagger_parse([tweet],run_tagger_cmd = RUN_TAGGER_CMD)
     return lot[0] if len(lot)>=1 else lot
 
 def parseTweets(tweets):
-    lot = CMUTweetTagger.runtagger_parse(tweets)
+    lot = CMUTweetTagger.runtagger_parse(tweets,run_tagger_cmd = RUN_TAGGER_CMD)
     return lot
 
 def isvalid(w):
