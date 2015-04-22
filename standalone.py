@@ -1,12 +1,12 @@
 import normalizer,tools
 from analysis import ext_contextual_candidates, add_slangs, add_from_dict, add_nom_verbs, iter_calc_lev,show_results, calculate_score, filter_and_sort_candidates, evaluate_alt
-from conf import SLANG, database, window_size, distance, max_val, OOVFUNC as oov_fun, ovv_fun_20_filtered_extended as EMNLP_fun
+from conf import SLANG, database, window_size, distance, max_val, ovv_fun_20_filtered_extended as EMNLP_fun
 import pdb
 from Oov_token import Oov_token
 
-def main(tweet_as_str):
+def main(tweet_as_str, oov_fun=EMNLP_fun ):
     tweet_pos_tagged = tools.parseTweet(tweet_as_str)
-    tweet_annotated = [(word,tag,None,'OOV' if EMNLP_fun(word,tag,_) else 'IV') for (word,tag,_) in tweet_pos_tagged]
+    tweet_annotated = [(word,tag,None,'OOV' if oov_fun(word,tag,_) else 'IV') for (word,tag,_) in tweet_pos_tagged]
     tweet_obj = Tweet(tweet_annotated)
     tweet_obj.normalize(True)
     tweet_obj.print_normalized()
