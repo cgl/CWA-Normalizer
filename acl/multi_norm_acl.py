@@ -1,17 +1,25 @@
 import os,sys,codecs,json,standalone
+from evaluation import evaluate
+FILEPATH = os.path.dirname(os.path.realpath(__file__))
 
 def main(argv):
-    training,results = process_files()
+    training_filename = FILEPATH +"/train_data_20150413.json"
+    res_filename = FILEPATH +'/demo.cwa3.json'
+    training,results = process_tra_file(training_filename)
     scowl_words = get_dict()
-    if len(argv) < 2: #test
-        sys.stdout.write("Testing with first 10 tweet")
-        get_norms(scowl_words,training[:10],results[:10])
-    else:
-        get_norms(scowl_words,training,results)
-    write_to_file(results)
+    if len(argv) >= 1: #test
+        sys.stdout.write("Testing with first 10 tweet\n")
+        training = training[:10]
+        results = results[:10]
+        training_filename = write_to_file(training_filename+".test.training",training)
+        res_filename = training_filename+".test.results"
+    get_norms(scowl_words,training,results)
+    write_to_file(res_filename,results)
+    sys.stdout.write("Answers written to file\n")
+    evaluate(res_filename,training_filename)
+    sys.stdout.write("Completed Successfully\n")
 
-def process_files():
-    training_filename = "/home/cagil/repos/CWA-Normalizer/data/train_data_20150413.json"
+def process_tra_file(training_filename):
     with codecs.open(training_filename,"r","utf-8") as file:
         training = json.load(file)
     with codecs.open(training_filename,"r","utf-8") as file:
@@ -19,7 +27,7 @@ def process_files():
     return training,results
 
 def get_dict():
-    dic_filename = "/home/cagil/repos/CWA-Normalizer/data/scowl.american.70"
+    dic_filename = FILEPATH +"/scowl.american.70"
     scowl_words = []
     with codecs.open(dic_filename, "r","iso-8859-1") as file:
         word = "None"
@@ -79,11 +87,11 @@ def test_normalization(is_oov_lex):
             print("[Error] %s not working properly" "normalization")
             sys.exit(1)
 
-def write_to_file(results):
-    res_filename = '/home/cagil/repos/CWA-Normalizer/data/demo.cwa3.json'
+def write_to_file(res_filename,results):
     #if  os.path.exists(res_filename):
     with open(res_filename, 'w') as outfile:
         json.dump(results,outfile)
+    return res_filename
 
 if __name__ == '__main__':
     #pool = Pool(processes=4)              # process per core
