@@ -13,7 +13,7 @@ def main(argv):
     test_oov_detection(is_ill,is_oov)
     test_oov_detection(spell,EMNLP_fun)
     test_normalization()
-    sys.stdout.write("All tests passed")
+    sys.stdout.write("All tests passed :)\n")
 
 def test_tagger():
     text = u'You better txt me if you really need smthin'
