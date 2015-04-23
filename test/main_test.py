@@ -48,7 +48,7 @@ def test_normalization():
     result = ['You', 'better', 'text', 'me', 'if', 'you', 'really', 'need', 'something']
     try:
         assert(normalized == result)
-        assert(norm_obj.__repr__().lower().strip() == 'You better [txt] me if you really need [smthin]'.lower())
+        assert(norm_obj.__repr__().lower().strip() == 'You better [txt] me if you really need [somthin]'.lower())
     except AssertionError:
         print("[Error] normalization not working properly")
         sys.exit(1)
