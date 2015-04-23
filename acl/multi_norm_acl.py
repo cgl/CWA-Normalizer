@@ -1,4 +1,5 @@
-import os,sys,codecs,json,standalone
+import os,sys,codecs,json,
+from main import standalone
 from evaluation import evaluate
 FILEPATH = os.path.dirname(os.path.realpath(__file__))
 
