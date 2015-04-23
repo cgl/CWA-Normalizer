@@ -1,7 +1,6 @@
 import normalizer,tools
 from analysis import ext_contextual_candidates, add_slangs, add_from_dict, add_nom_verbs, iter_calc_lev,show_results, calculate_score, filter_and_sort_candidates, evaluate_alt
 from conf import SLANG, database, window_size, distance, max_val, ovv_fun_20_filtered_extended as EMNLP_fun
-import pdb
 from Oov_token import Oov_token
 
 def main(tweet_as_str, oov_fun=EMNLP_fun ):

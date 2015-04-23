@@ -59,8 +59,8 @@ def test_oov_detection(fun1,fun2):
         sys.exit(1)
     try:
         assert(fun2("hello","IV","hello") == False)
-        assert(fun1("Hello","IV","Hello") == False)
-        assert(fun1("hllo","OOV","hello") == True)
+        assert(fun2("Hello","IV","Hello") == False)
+        assert(fun2("hllo","OOV","hello") == True)
     except AssertionError:
         print("[Error] %s not working properly" %fun2)
         sys.exit(1)
