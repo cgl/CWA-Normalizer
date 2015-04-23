@@ -1,5 +1,6 @@
 from main.tools import parseTweet, spell_check
-import sys, CMUTweetTagger, standalone
+from main import standalone
+import sys, CMUTweetTagger
 from conf import is_ill, is_oov, spell, ovv_fun_20_filtered_extended as EMNLP_fun
 #is_ill = lambda x,y,z : True if x != z else False
 #is_oov = lambda x,y,z : True if y == 'OOV' else False
