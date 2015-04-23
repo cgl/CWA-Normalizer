@@ -2,9 +2,11 @@ from main.tools import parseTweet, spell_check
 from main import standalone
 import sys, CMUTweetTagger
 from main.conf import is_ill, is_oov, spell, ovv_fun_20_filtered_extended as EMNLP_fun
-#is_ill = lambda x,y,z : True if x != z else False
-#is_oov = lambda x,y,z : True if y == 'OOV' else False
-#spell = lambda x,y,z : not spell_check(x)
+"""
+Main test function
+Required exports:
+export PYTHONPATH=/home/cagil/repos/CWA-Normalizer:/home/cagil/repos/virtuals/movvie/lib/python2.7/site-packages/febrl-0.4.2/
+"""
 
 def main(argv):
     test_tagger()
@@ -50,3 +52,6 @@ def test_normalization():
     except AssertionError:
         print("[Error] normalization not working properly")
         sys.exit(1)
+
+if __name__ == '__main__':
+    main(sys.argv)
