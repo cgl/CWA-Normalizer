@@ -106,3 +106,9 @@ def performance(evl):
     fp = len(evl['incorrectly_corrected_word'])
     print(correct,incorrect,fp,num_of_words_req_norm)
     tools.get_performance(correct,incorrect,fp,num_of_words_req_norm)
+
+def compare(lo_tweets_1,lo_tweets_2):
+    for ind in range(0,549):
+        for oov_ind in range(0,len(lo_tweets_1[ind].oov_tokens)):
+            if lo_tweets_1[ind].oov_tokens[oov_ind].answer != lo_tweets_2[ind].oov_tokens[oov_ind].answer:
+                print(ind,oov_ind,'[',lo_tweets_1[ind].oov_tokens[oov_ind].canonical,']',lo_tweets_1[ind].oov_tokens[oov_ind].answer or "-", lo_tweets_2[ind].oov_tokens[oov_ind].answer or "-")
