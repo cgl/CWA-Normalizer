@@ -7,7 +7,7 @@ from math import log
 from  numpy import array
 import pdb
 import logging
-from graph import write_scores, get_neighbours
+from main.graph import write_scores, get_neighbours
 
 salient=0.001
 class Normalizer(object):
