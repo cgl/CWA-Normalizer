@@ -8,7 +8,7 @@ def main(argv):
     res_filename = FILEPATH +'/demo.cwa3.json'
     training,results = process_tra_file(training_filename)
     scowl_words = get_dict()
-    if len(argv) >= 1: #test
+    if len(argv) > 1: #test
         sys.stdout.write("Testing with first 10 tweet\n")
         training = training[:10]
         results = results[:10]
