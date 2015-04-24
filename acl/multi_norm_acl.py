@@ -1,4 +1,8 @@
-import os,sys,codecs,json
+import os,sys,codecs
+try:
+    import ujson as json
+except ImportError:
+    import json
 from main import standalone
 from evaluation import evaluate
 FILEPATH = os.path.dirname(os.path.realpath(__file__))
