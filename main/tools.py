@@ -4,8 +4,6 @@ from lib import CMUTweetTagger
 from pymongo import MongoClient
 from numpy import array
 import pickle
-import Levenshtein
-import soundex
 from stringcmp import editdist_edits, editdist, editex
 from fuzzy import DMetaphone
 import string
@@ -67,7 +65,7 @@ def top_n(res,not_ovv,mapp,ann_and_pos_tag,n=100,verbose=False):
             if correct_answer.lower() == not_ovv[res_ind].lower():
                 pass
             elif verbose:
-                print "Houston",res_ind, ovv,correct_answer, not_ovv[res_ind]
+                print("Houston",res_ind, ovv,correct_answer, not_ovv[res_ind])
         elif correct_answer != ovv:
             total_ill += 1
             if res[res_ind]:
@@ -83,11 +81,11 @@ def top_n(res,not_ovv,mapp,ann_and_pos_tag,n=100,verbose=False):
                     not_in_list.append((res_ind,ovv,correct_answer,mapp[res_ind][2],ann_and_pos_tag[res_ind][3]))
             else:
                 no_result.append((res_ind,ovv,correct_answer,mapp[res_ind][2],ann_and_pos_tag[res_ind][3]))
-    print 'Out of %d normalization, we^ve %d of those correct normalizations in our list with indexes \n %s' % (total_ill, in_top_n,[(a, index_list[a][0]) for a in index_list])
+    print('Out of %d normalization, we^ve %d of those correct normalizations in our list with indexes \n %s' % (total_ill, in_top_n,[(a, index_list[a][0]) for a in index_list]))
     if verbose:
         for a in index_list:
             if a != 0:
-                print  [ (b,a,res[b][a][0]) for b in index_list[a][1]]
+                print ([ (b,a,res[b][a][0]) for b in index_list[a][1]])
     return index_list,not_in_list, no_result
 
 def get_degree_score(cand,ovv_tag):
@@ -194,7 +192,7 @@ def longest(ovv,cand):
         ovv_int = [char_map[x] for x in ovv.encode('ascii',"ignore").lower()]
         cand_int = [char_map[y] for y in cand.encode('ascii',"ignore").lower()]
         lcs = mlpy.lcs_std(ovv_int,cand_int)[0]
-    except Exception, e:
+    except Exception as e:
         print(ovv,cand,e)
         lcs = difflib.SequenceMatcher(None, ovv,cand).find_longest_match(0, len(ovv), 0, len(cand))[2]
     return lcs
@@ -242,28 +240,13 @@ def metaphone_distance_filter(ovv,cand,met_dis):
                         return True
     return False
 
-def soundex_distance(ovv_snd,cand):
-    try:
-        lev = Levenshtein.distance(unicode(ovv_snd),soundex.soundex(cand.decode("utf-8","ignore")))
-    except UnicodeEncodeError:
-        print 'UnicodeEncodeError[ovv_snd]: %s %s' % (ovv_snd,cand)
-        lev = Levenshtein.distance(ovv_snd,soundex.soundex(cand.encode("ascii","ignore")))
-    except UnicodeDecodeError:
-        print 'UnicodeDecodeError[ovv_snd]: %s %s' % (ovv_snd,cand)
-        lev = Levenshtein.distance(ovv_snd,soundex.soundex(cand.decode("ascii","ignore")))
-    except TypeError:
-        print 'TypeError[ovv_snd]: %s %s' % (ovv_snd,cand)
-        lev = 10.
-    snd_dis = lev
-    return snd_dis
-
 # This function creates/updates the dictionary of clean words
 # { "_id" : ObjectId("52.."), "node" : "suzuki",    "met0" : "SSK",  "met1" : "STSK", "ovv" : false }
 # { "_id" : ObjectId("52.."), "node" : "acquiring", "met0" : "AKRN",                  "ovv" : false }
 #
 def get_dict():
     cursor = db_tweets.nodes.find({"ovv":False,"freq":{"$gt": 100}}).sort("freq",-1)
-    print cursor.count()
+    print( cursor.count())
     for node in cursor:
         word = node['node']
         if db_dict.dic.find_one({"ovv":False,"node":word}) is not None:
@@ -272,7 +255,7 @@ def get_dict():
             try:
                 met_set = DMetaphone(4)(word)
             except UnicodeEncodeError:
-                print 'UnicodeEncodeError[get_dict]: %s' % (word)
+                print ('UnicodeEncodeError[get_dict]: %s' % (word))
                 met_set = DMetaphone(4)(word.encode("ascii","ignore"))
             query = {}
             for met_ind in range(0,len(met_set)):
@@ -389,16 +372,16 @@ def get_performance(correct,incorrect,fp,no_ans,num_of_words_req_norm):
     recall = float(correct)/num_of_words_req_norm
     precision = float(correct)/total_normalized_words
     fmeasure = 2 * precision * recall / (precision+recall)
-    print "Correct: %d, Incorrect: %d, Incorrectly corrected(fp) %d, Not Found %d, Total Norm: %d, Req Norm: %d" %(
-        correct,incorrect,fp, no_ans, total_normalized_words, num_of_words_req_norm)
-    print "Precision:%f , Recall: %f , FMeasure:%f" %(round(precision,4),round(recall,4),round(fmeasure,4))
+    print( "Correct: %d, Incorrect: %d, Incorrectly corrected(fp) %d, Not Found %d, Total Norm: %d, Req Norm: %d" %(
+        correct,incorrect,fp, no_ans, total_normalized_words, num_of_words_req_norm))
+    print ("Precision:%f , Recall: %f , FMeasure:%f" %(round(precision,4),round(recall,4),round(fmeasure,4)))
 
 def get_performance_old(correct,not_found,incorrect,total_not_ill):
     recall = float(correct)/total_not_ill
     precision = float(correct)/(total_not_ill - not_found)
     fmeasure = 2 * precision * recall / (precision+recall)
-    print "Correct: %d , Not Found: %d, Incorrect: %d " %(correct, not_found,incorrect)
-    print "Precision:%f, Recall: %f  , FMeasure:%f" %(round(precision,4),round(recall,4),round(fmeasure,4))
+    print ("Correct: %d , Not Found: %d, Incorrect: %d " %(correct, not_found,incorrect))
+    print ("Precision:%f, Recall: %f  , FMeasure:%f" %(round(precision,4),round(recall,4),round(fmeasure,4)))
 
 def get_clean_words():
     words = {}
@@ -416,7 +399,7 @@ def get_score_threshold(index_list,res):
     for ans_ind in index_list.keys():
         for res_ind in index_list[ans_ind][1]:
             scores.append(res[res_ind][ans_ind][-1])
-    print "Minimum score: %f , Maximum score: %f" %(min(scores),max(scores))
+    print( "Minimum score: %f , Maximum score: %f" %(min(scores),max(scores)))
     return min(scores)
 
 def freq_zero_correct_answers(index_list,res,threshold):
@@ -425,7 +408,7 @@ def freq_zero_correct_answers(index_list,res,threshold):
         for res_ind in index_list[ans_ind][1]:
             if res[res_ind][ans_ind][6] < threshold:
                 kucukler.append((res_ind,ans_ind,res[res_ind][ans_ind]))
-    print "There is %d results with smaller freq than %d " %(len(kucukler),threshold)
+    print( "There is %d results with smaller freq than %d " %(len(kucukler),threshold))
     return kucukler
 
 
@@ -439,7 +422,7 @@ def test_threshold(res,threshold):
                 kucukler += 1
             else:
                 buyukler += 1
-    print "There is %d result below and %d result above the threshold" %(kucukler,buyukler)
+    print ("There is %d result below and %d result above the threshold" %(kucukler,buyukler))
 
 def create_extended_mapp(results,not_oov):
     i = 0
