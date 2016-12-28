@@ -8,10 +8,7 @@ Required exports:
 export PYTHONPATH=/home/cagil/repos/CWA-Normalizer:/home/cagil/repos/virtuals/movvie/lib/python2.7/site-packages/febrl-0.4.2/
 /Users/cagil/virtuals/CWA2/src/febrl
 
-sudo aptitude install libfreetype6-dev python-enchant
-brew install freetype enchant
-pip install -r requirements.txt
-scp main/ark-tweet-nlp-0.3.2.jar terranova:CWA-Normalizer/main/
+see install.txt
 """
 
 def main(argv):
