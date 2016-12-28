@@ -1,4 +1,4 @@
--e git+git@github.com:cgl/febrl.git@03b2da6a10e33c8e4cb17ce562e0c9ef5261349e#egg=Febrl
-numpy==1.11.3
-pymongo==3.4.0
+-e git+git@github.com:cgl/febrl.git#egg=Febrl
+numpy
+pymongo
 fuzzy
