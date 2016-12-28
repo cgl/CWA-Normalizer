@@ -6,6 +6,7 @@ from main.conf import is_ill, is_oov, spell, ovv_fun_20_filtered_extended as EMN
 Main test function
 Required exports:
 export PYTHONPATH=/home/cagil/repos/CWA-Normalizer:/home/cagil/repos/virtuals/movvie/lib/python2.7/site-packages/febrl-0.4.2/
+/Users/cagil/virtuals/CWA2/src/febrl
 """
 
 def main(argv):
