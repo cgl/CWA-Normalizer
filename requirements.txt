@@ -1,4 +1,8 @@
 -e git+git@github.com:cgl/febrl.git#egg=Febrl
 numpy
+SciPy
 pymongo
+pyenchant
 fuzzy
+python-levenshtein
+ipdb

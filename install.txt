@@ -1,0 +1,25 @@
+
+
+INSTALL
+------------------------------------
+sudo aptitude install libfreetype6-dev python-enchant
+brew install freetype enchant
+pip install -r requirements.txt
+export PYTHONPATH=~/virtuals/CWA2/src/febrl
+
+scp main/ark-tweet-nlp-0.3.2.jar terranova:CWA-Normalizer/main/
+------
+For MLPY (http://mlpy.sourceforge.net/docs/3.5/install.html )
+sudo aptitude install gsl-bin libgsl0-dev
+------
+wget http://downloads.sourceforge.net/project/mlpy/mlpy%203.5.0/mlpy-3.5.0.tar.gz
+tar xzf mlpy-3.5.0.tar.gz
+cd mlpy-3.5.0/
+python setup.py install --prefix=~/virtuals/CWA2/
+
+Main test function: test/main_test.py
+
+
+OLD:
+Required exports:
+export PYTHONPATH=/home/cagil/repos/CWA-Normalizer:/home/cagil/repos/virtuals/movvie/lib/python2.7/site-packages/febrl-0.4.2/
